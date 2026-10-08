@@ -1,0 +1,125 @@
+{
+  "ok": true,
+  "chroma_key": {
+    "hex": "#FF00FF",
+    "rgb": [
+      255,
+      0,
+      255
+    ],
+    "threshold": 96.0
+  },
+  "rows": [
+    {
+      "state": "idle",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\idle\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\idle\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\idle\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\idle\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\idle\\04.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\idle\\05.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "running-right",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\04.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\05.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\06.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-right\\07.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "running-left",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\04.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\05.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\06.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running-left\\07.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "waving",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waving\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waving\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waving\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waving\\03.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "jumping",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\jumping\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\jumping\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\jumping\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\jumping\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\jumping\\04.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "failed",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\04.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\05.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\06.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\failed\\07.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "waiting",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waiting\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waiting\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waiting\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waiting\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waiting\\04.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\waiting\\05.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "running",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running\\04.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\running\\05.png"
+      ],
+      "method": "components"
+    },
+    {
+      "state": "review",
+      "frames": [
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\review\\00.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\review\\01.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\review\\02.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\review\\03.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\review\\04.png",
+        "G:\\My Drive\\Pets\\Great White Shark\\work\\frames\\review\\05.png"
+      ],
+      "method": "components"
+    }
+  ]
+}

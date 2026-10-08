@@ -1,0 +1,69 @@
+{
+  "ok": true,
+  "atlas": "G:\\My Drive\\Pets\\Great White Shark\\work\\final\\spritesheet-extended.png",
+  "encoded_bytes": 1928884,
+  "sha256": "b6a95f830318e7b5fa8198d5ffac0f7062024d77e0808fc2a0db80e13afa5413",
+  "jump": {
+    "idle_baseline": 196,
+    "jump_baselines": [
+      196,
+      160,
+      126,
+      160,
+      196
+    ],
+    "airborne_lift_pixels": 70,
+    "landing_delta_pixels": 0
+  },
+  "look_registration": {
+    "neutral_center_x": 96.0,
+    "look_centers_x": [
+      91.0,
+      93.0,
+      97.0,
+      100.5,
+      102.5,
+      102.0,
+      98.5,
+      83.0,
+      104.0,
+      109.5,
+      100.0,
+      102.5,
+      105.0,
+      103.5,
+      106.5,
+      107.5
+    ],
+    "look_widths": [
+      148,
+      152,
+      158,
+      161,
+      163,
+      164,
+      163,
+      156,
+      144,
+      127,
+      150,
+      161,
+      170,
+      161,
+      149,
+      149
+    ],
+    "maximum_center_drift_pixels": 13.5,
+    "maximum_width_ratio": 1.3385826771653544
+  },
+  "errors": [],
+  "warnings": [
+    "look direction 022.5 accepted with a reviewed warning",
+    "135->157.5 center shift is high (15.5px)",
+    "157.5->180 diff is a local outlier (5268 pixels vs neighbor average 3560)",
+    "157.5->180 center shift is high (22.5px)",
+    "202.5->225 center shift is high (10.1px)",
+    "337.5->000 diff is a local outlier (7059 pixels vs neighbor average 1291)",
+    "337.5->000 center shift is high (16.6px)"
+  ]
+}

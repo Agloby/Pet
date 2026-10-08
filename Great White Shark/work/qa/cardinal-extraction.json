@@ -1,0 +1,61 @@
+{
+  "ok": true,
+  "strip": "G:\\My Drive\\Pets\\Great White Shark\\work\\decoded\\look-cardinals-repacked.png",
+  "directions": [
+    "000",
+    "090",
+    "180",
+    "270"
+  ],
+  "errors": [],
+  "anchors": [
+    {
+      "direction": "000",
+      "source_box": [
+        0,
+        0,
+        192,
+        208
+      ],
+      "used_pixels": 9132,
+      "edge_pixels": 0,
+      "output": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\cardinals\\000.png"
+    },
+    {
+      "direction": "090",
+      "source_box": [
+        192,
+        0,
+        384,
+        208
+      ],
+      "used_pixels": 9139,
+      "edge_pixels": 0,
+      "output": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\cardinals\\090.png"
+    },
+    {
+      "direction": "180",
+      "source_box": [
+        384,
+        0,
+        576,
+        208
+      ],
+      "used_pixels": 7912,
+      "edge_pixels": 0,
+      "output": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\cardinals\\180.png"
+    },
+    {
+      "direction": "270",
+      "source_box": [
+        576,
+        0,
+        768,
+        208
+      ],
+      "used_pixels": 7809,
+      "edge_pixels": 0,
+      "output": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\cardinals\\270.png"
+    }
+  ]
+}

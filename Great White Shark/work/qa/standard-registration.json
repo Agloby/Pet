@@ -1,0 +1,133 @@
+{
+  "rows": [
+    {
+      "state": "idle",
+      "source_anchor": 161,
+      "shift_y": 35,
+      "target_baseline": 196,
+      "source_baselines": [
+        161,
+        155,
+        161,
+        163,
+        156,
+        161
+      ]
+    },
+    {
+      "state": "running-right",
+      "source_anchor": 156,
+      "shift_y": 40,
+      "target_baseline": 196,
+      "source_baselines": [
+        156,
+        156,
+        158,
+        156,
+        156,
+        158,
+        156,
+        158
+      ]
+    },
+    {
+      "state": "running-left",
+      "source_anchor": 157,
+      "shift_y": 39,
+      "target_baseline": 196,
+      "source_baselines": [
+        157,
+        157,
+        159,
+        157,
+        157,
+        159,
+        157,
+        159
+      ]
+    },
+    {
+      "state": "waving",
+      "source_anchor": 161,
+      "shift_y": 35,
+      "target_baseline": 196,
+      "source_baselines": [
+        161,
+        157,
+        157,
+        158
+      ]
+    },
+    {
+      "state": "jumping",
+      "source_anchor": 191,
+      "shift_y": 5,
+      "target_baseline": 196,
+      "source_baselines": [
+        191,
+        155,
+        121,
+        155,
+        191
+      ]
+    },
+    {
+      "state": "failed",
+      "source_anchor": 155,
+      "shift_y": 41,
+      "target_baseline": 196,
+      "source_baselines": [
+        155,
+        156,
+        157,
+        158,
+        159,
+        157,
+        156,
+        155
+      ]
+    },
+    {
+      "state": "waiting",
+      "source_anchor": 164,
+      "shift_y": 32,
+      "target_baseline": 196,
+      "source_baselines": [
+        164,
+        164,
+        164,
+        164,
+        154,
+        164
+      ]
+    },
+    {
+      "state": "running",
+      "source_anchor": 165,
+      "shift_y": 31,
+      "target_baseline": 196,
+      "source_baselines": [
+        165,
+        166,
+        166,
+        166,
+        166,
+        165
+      ]
+    },
+    {
+      "state": "review",
+      "source_anchor": 161,
+      "shift_y": 35,
+      "target_baseline": 196,
+      "source_baselines": [
+        161,
+        161,
+        161,
+        160,
+        160,
+        161
+      ]
+    }
+  ]
+}

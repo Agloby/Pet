@@ -1,0 +1,87 @@
+{
+  "ok": false,
+  "atlas": "G:\\My Drive\\Pets\\Great White Shark\\work\\final\\spritesheet-extended.png",
+  "encoded_bytes": 1928884,
+  "sha256": "b6a95f830318e7b5fa8198d5ffac0f7062024d77e0808fc2a0db80e13afa5413",
+  "jump": {
+    "idle_baseline": 196,
+    "jump_baselines": [
+      196,
+      160,
+      126,
+      160,
+      196
+    ],
+    "airborne_lift_pixels": 70,
+    "landing_delta_pixels": 0
+  },
+  "look_registration": {
+    "neutral_center_x": 96.0,
+    "look_centers_x": [
+      91.0,
+      93.0,
+      97.0,
+      100.5,
+      102.5,
+      102.0,
+      98.5,
+      83.0,
+      104.0,
+      109.5,
+      100.0,
+      102.5,
+      105.0,
+      103.5,
+      106.5,
+      107.5
+    ],
+    "look_widths": [
+      148,
+      152,
+      158,
+      161,
+      163,
+      164,
+      163,
+      156,
+      144,
+      127,
+      150,
+      161,
+      170,
+      161,
+      149,
+      149
+    ],
+    "maximum_center_drift_pixels": 13.5,
+    "maximum_width_ratio": 1.3385826771653544
+  },
+  "errors": [
+    "look directions contain transparent interior holes or seam bands: 000, 022.5, 045, 067.5, 090, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5"
+  ],
+  "warnings": [
+    "look direction 022.5 accepted with a reviewed warning",
+    "000 has transparent interior hole rows (y=109, y=110, y=111, y=121, +34 more)",
+    "022.5 has transparent interior hole rows (y=109, y=110, y=111, y=112, +36 more)",
+    "045 has transparent interior hole rows (y=112, y=113, y=114, y=122, +34 more)",
+    "067.5 has transparent interior hole rows (y=122, y=123, y=124, y=125, +28 more)",
+    "090 has transparent interior hole rows (y=122, y=123, y=124, y=125, +28 more)",
+    "112.5 has transparent interior hole rows (y=122, y=123, y=124, y=125, +31 more)",
+    "135 has transparent interior hole rows (y=122, y=123, y=124, y=125, +31 more)",
+    "157.5 has transparent interior hole rows (y=122, y=123, y=124, y=125, +26 more)",
+    "180 has transparent interior hole rows (y=111, y=112, y=113, y=114, +14 more)",
+    "202.5 has transparent interior hole rows (y=97, y=98, y=99, y=100, +22 more)",
+    "225 has transparent interior hole rows (y=105, y=106, y=107, y=108, +25 more)",
+    "247.5 has transparent interior hole rows (y=105, y=106, y=107, y=108, +27 more)",
+    "270 has transparent interior hole rows (y=116, y=117, y=118, y=119, +27 more)",
+    "292.5 has transparent interior hole rows (y=109, y=110, y=123, y=124, +23 more)",
+    "315 has transparent interior hole rows (y=106, y=107, y=108, y=127, +23 more)",
+    "337.5 has transparent interior hole rows (y=106, y=128, y=129, y=130, +23 more)",
+    "135->157.5 center shift is high (15.5px)",
+    "157.5->180 diff is a local outlier (5268 pixels vs neighbor average 3560)",
+    "157.5->180 center shift is high (22.5px)",
+    "202.5->225 center shift is high (10.1px)",
+    "337.5->000 diff is a local outlier (7059 pixels vs neighbor average 1291)",
+    "337.5->000 center shift is high (16.6px)"
+  ]
+}

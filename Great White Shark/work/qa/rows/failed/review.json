@@ -1,0 +1,142 @@
+{
+  "ok": true,
+  "frames_root": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames",
+  "states": [
+    "failed"
+  ],
+  "errors": [],
+  "warnings": [],
+  "rows": [
+    {
+      "state": "failed",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9946,
+          "bbox": [
+            5,
+            46,
+            187,
+            157
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 301
+        },
+        {
+          "index": 1,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9807,
+          "bbox": [
+            7,
+            47,
+            185,
+            158
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 319
+        },
+        {
+          "index": 2,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9745,
+          "bbox": [
+            7,
+            47,
+            185,
+            159
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 280
+        },
+        {
+          "index": 3,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9723,
+          "bbox": [
+            7,
+            48,
+            185,
+            160
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 293
+        },
+        {
+          "index": 4,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9730,
+          "bbox": [
+            7,
+            48,
+            185,
+            161
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 288
+        },
+        {
+          "index": 5,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9787,
+          "bbox": [
+            7,
+            48,
+            185,
+            159
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 314
+        },
+        {
+          "index": 6,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9819,
+          "bbox": [
+            7,
+            47,
+            185,
+            158
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 315
+        },
+        {
+          "index": 7,
+          "file": "G:\\My Drive\\Pets\\Great White Shark\\work\\qa\\rows\\failed\\frames\\failed\\07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 9787,
+          "bbox": [
+            7,
+            47,
+            185,
+            157
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 283
+        }
+      ]
+    }
+  ]
+}

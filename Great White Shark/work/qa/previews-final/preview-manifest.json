@@ -1,0 +1,22 @@
+{
+  "atlas": "G:\\My Drive\\Pets\\Great White Shark\\work\\final\\spritesheet-extended.png",
+  "files": [
+    "idle.gif",
+    "running-right.gif",
+    "running-left.gif",
+    "waving.gif",
+    "jumping.gif",
+    "failed.gif",
+    "waiting.gif",
+    "running.gif",
+    "review.gif",
+    "all-states.gif",
+    "idle-jump-idle.gif",
+    "look-loop.gif",
+    "still-00.png",
+    "still-06.png",
+    "still-22.png",
+    "still-30.png",
+    "all-states.mp4"
+  ]
+}
