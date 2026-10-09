@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kern">
+  <defs>
+    <linearGradient id="sea" x1="70" y1="40" x2="430" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#164f65"/>
+      <stop offset="1" stop-color="#061b2b"/>
+    </linearGradient>
+    <linearGradient id="shark" x1="130" y1="170" x2="390" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#b9d5dc"/>
+      <stop offset="1" stop-color="#668b99"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#sea)"/>
+  <circle cx="126" cy="124" r="12" fill="none" stroke="#72e3dc" stroke-width="5" opacity=".65"/>
+  <circle cx="391" cy="155" r="8" fill="none" stroke="#72e3dc" stroke-width="4" opacity=".5"/>
+  <path d="M92 274c64-83 180-116 286-67l54-48-17 76 31 44-65-23c-92 80-205 81-289 18Z" fill="url(#shark)"/>
+  <path d="m267 202 56-79 11 94Z" fill="#799da9"/>
+  <path d="m231 303 43 73 20-83Z" fill="#6f939f"/>
+  <path d="M108 278c83 41 183 38 273-22-84 85-205 93-289 18Z" fill="#eef7f7" opacity=".9"/>
+  <circle cx="177" cy="242" r="9" fill="#06131c"/>
+  <circle cx="174" cy="239" r="2.5" fill="#fff"/>
+</svg>

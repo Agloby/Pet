@@ -10,6 +10,13 @@ Final motion previews are in:
 
 `Great White Shark/work/qa/previews-final/`
 
-The Google Drive source copy is preserved separately. The cross-device Tamagotchi application for iPhone, Garmin Forerunner 970, and laptops is a future implementation and is not included in this asset repository yet.
+The Google Drive source copy is preserved separately. The first application milestone is now available in [`apps/desktop`](./apps/desktop/): an installable desktop web prototype that renders Kern, supports a complete care interaction, and persists progress locally. Cross-device synchronization and native iPhone and Garmin clients remain future milestones.
+
+Run the desktop prototype with:
+
+```bash
+cd apps/desktop
+npm run dev
+```
 
 Kern is active in ChatGPT Work under stable pet ID `pet_6ac7d43b4cfc8191bbf594d64a231d55`.

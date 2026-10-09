@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071c2c" />
+    <meta
+      name="description"
+      content="A local desktop companion prototype for Kern, the great white shark."
+    />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./assets/kern-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Kern — Desktop Companion</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Kern home">
+          <span class="brand-mark">K</span>
+          <span>
+            <strong>Kern</strong>
+            <small>Local companion</small>
+          </span>
+        </a>
+        <div class="local-status" title="This prototype stores progress only on this device">
+          <span class="status-dot" aria-hidden="true"></span>
+          Saved on this device
+        </div>
+      </header>
+
+      <section class="companion-card" aria-labelledby="greeting">
+        <div class="scene-panel">
+          <div class="scene-copy">
+            <p class="eyebrow">Milestone 01 · First contact</p>
+            <h1 id="greeting">Kern is <span id="mood-label">settling in</span>.</h1>
+            <p id="mood-message" class="mood-message" aria-live="polite">
+              Loading the lagoon…
+            </p>
+          </div>
+
+          <div class="lagoon" aria-label="Animated Kern">
+            <div class="bubble bubble-one"></div>
+            <div class="bubble bubble-two"></div>
+            <div class="bubble bubble-three"></div>
+            <canvas id="kern-canvas" width="384" height="416"></canvas>
+            <div class="seabed"></div>
+          </div>
+
+          <button id="care-button" class="primary-action" type="button" disabled>
+            <span class="action-icon" aria-hidden="true">✦</span>
+            <span>
+              <strong>Share a snack</strong>
+              <small>Build trust and refill Kern’s belly</small>
+            </span>
+          </button>
+        </div>
+
+        <aside class="care-panel" aria-label="Kern's current state">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Today</p>
+              <h2>Care log</h2>
+            </div>
+            <button id="reset-button" class="text-button" type="button">Reset</button>
+          </div>
+
+          <div class="stat-list">
+            <div class="stat">
+              <div class="stat-label">
+                <span>Fullness</span>
+                <output id="fullness-value">0%</output>
+              </div>
+              <div class="meter" role="progressbar" aria-label="Fullness" aria-valuemin="0" aria-valuemax="100">
+                <div id="fullness-meter" class="meter-fill meter-coral"></div>
+              </div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-label">
+                <span>Happiness</span>
+                <output id="happiness-value">0%</output>
+              </div>
+              <div class="meter" role="progressbar" aria-label="Happiness" aria-valuemin="0" aria-valuemax="100">
+                <div id="happiness-meter" class="meter-fill meter-aqua"></div>
+              </div>
+            </div>
+
+            <div class="bond-card">
+              <span class="bond-symbol" aria-hidden="true">∞</span>
+              <span>
+                <small>Bond level</small>
+                <strong id="bond-value">New friends</strong>
+              </span>
+              <span id="care-count" class="care-count">0 check-ins</span>
+            </div>
+          </div>
+
+          <div class="journal">
+            <h3>Recent moments</h3>
+            <ol id="journal-list" class="journal-list"></ol>
+          </div>
+
+          <p class="privacy-note">
+            Progress stays in this browser. Account sync arrives in a later milestone.
+          </p>
+        </aside>
+      </section>
+    </main>
+
+    <noscript>Kern needs JavaScript enabled to animate and remember your progress.</noscript>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
