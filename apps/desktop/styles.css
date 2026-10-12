@@ -90,8 +90,18 @@ button {
   display: flex;
   gap: 8px;
   align-items: center;
+  padding: 8px 11px;
+  border: 1px solid rgba(143, 204, 208, 0.14);
+  border-radius: 999px;
+  background: rgba(8, 36, 49, 0.56);
   color: #b9cdd3;
+  cursor: pointer;
   font-size: 12px;
+}
+
+.local-status:hover {
+  border-color: rgba(114, 227, 220, 0.32);
+  color: var(--ink);
 }
 
 .status-dot {
@@ -100,6 +110,24 @@ button {
   border-radius: 50%;
   background: var(--aqua);
   box-shadow: 0 0 12px rgba(114, 227, 220, 0.8);
+}
+
+.status-dot[data-status="syncing"] {
+  background: #f2c978;
+  box-shadow: 0 0 12px rgba(242, 201, 120, 0.7);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.status-dot[data-status="pending"],
+.status-dot[data-status="offline"] {
+  background: var(--coral);
+  box-shadow: 0 0 12px rgba(255, 140, 118, 0.68);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
 }
 
 .companion-card {
@@ -474,6 +502,200 @@ h1 span {
   margin: auto 0 0;
   padding-top: 24px;
   color: #647f89;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sync-dialog {
+  width: min(520px, calc(100% - 32px));
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(151, 219, 220, 0.2);
+  border-radius: 24px;
+  background: #082333;
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.52);
+  color: var(--ink);
+}
+
+.sync-dialog::backdrop {
+  background: rgba(1, 11, 18, 0.74);
+  backdrop-filter: blur(8px);
+}
+
+.sync-dialog-shell {
+  padding: 34px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(114, 227, 220, 0.11), transparent 30%),
+    #082333;
+}
+
+.sync-dialog-header {
+  display: flex;
+  gap: 20px;
+  align-items: start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.sync-dialog-header h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  font-weight: 400;
+}
+
+.dialog-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(161, 224, 229, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.sync-intro {
+  color: #9cb2ba;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sync-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.sync-form label {
+  display: grid;
+  gap: 8px;
+  color: #bfd0d6;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sync-form input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(161, 224, 229, 0.16);
+  border-radius: 12px;
+  outline: 0;
+  background: rgba(2, 17, 27, 0.62);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.sync-form input:focus {
+  border-color: rgba(114, 227, 220, 0.7);
+  box-shadow: 0 0 0 3px rgba(114, 227, 220, 0.08);
+}
+
+.sync-message {
+  min-height: 20px;
+  margin: 2px 0 0;
+  color: #ffc1b5;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sync-message[data-tone="success"] {
+  color: var(--aqua);
+}
+
+.sync-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 3px;
+}
+
+.secondary-action,
+.primary-compact {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.secondary-action {
+  border: 1px solid rgba(161, 224, 229, 0.16);
+  background: rgba(255, 255, 255, 0.035);
+  color: #c5d7dc;
+}
+
+.primary-compact {
+  border: 1px solid rgba(114, 227, 220, 0.36);
+  background: var(--aqua);
+  color: #052027;
+}
+
+.secondary-action:disabled,
+.primary-compact:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.account-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid rgba(114, 227, 220, 0.13);
+  border-radius: 15px;
+  background: rgba(114, 227, 220, 0.055);
+}
+
+.account-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(114, 227, 220, 0.12);
+  color: var(--aqua);
+  font-family: Georgia, serif;
+  font-size: 20px;
+}
+
+.account-card small,
+.account-card strong {
+  display: block;
+}
+
+.account-card small {
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.account-card strong {
+  font-size: 14px;
+}
+
+.account-sync-state {
+  margin-left: auto;
+  color: var(--aqua);
+  font-size: 11px;
+}
+
+.security-note {
+  margin: 26px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(161, 224, 229, 0.08);
+  color: #66838d;
   font-size: 10px;
   line-height: 1.5;
 }

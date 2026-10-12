@@ -1,4 +1,4 @@
-const CACHE_NAME = "kern-desktop-v1";
+const CACHE_NAME = "kern-desktop-v2";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const APP_FILES = [
   "./src/pet-state.js",
   "./src/sprite-player.js",
   "./src/storage.js",
+  "./src/sync-client.js",
 ];
 
 self.addEventListener("install", (event) => {
