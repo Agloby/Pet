@@ -564,13 +564,23 @@ h1 span {
   aspect-ratio: 1586 / 992;
   border: 1px solid rgba(173, 235, 224, 0.22);
   border-radius: 28px;
-  background:
-    linear-gradient(180deg, rgba(3, 33, 49, 0.04), rgba(2, 19, 29, 0.18)),
-    url("./assets/reef-habitat.png") center / cover no-repeat;
+  background: #07364b;
   box-shadow:
     inset 0 1px rgba(255, 255, 255, 0.18),
     inset 0 -50px 75px rgba(1, 15, 25, 0.18),
     0 28px 58px rgba(0, 7, 13, 0.3);
+}
+
+.reef-backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: -5%;
+  background:
+    linear-gradient(180deg, rgba(3, 33, 49, 0.02), rgba(2, 19, 29, 0.14)),
+    url("./assets/reef-habitat.png") center / cover no-repeat;
+  transform-origin: 50% 52%;
+  animation: reef-current 28s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 .lagoon::before {
@@ -585,16 +595,76 @@ h1 span {
   pointer-events: none;
 }
 
-.kern-character {
+.caustic-light {
+  position: absolute;
+  z-index: 2;
+  inset: -30%;
+  background:
+    repeating-radial-gradient(ellipse at 50% 0%, transparent 0 38px, rgba(184, 255, 239, 0.12) 42px 45px, transparent 50px 80px),
+    linear-gradient(112deg, transparent 30%, rgba(164, 248, 231, 0.11) 45%, transparent 58%);
+  filter: blur(7px);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  pointer-events: none;
+  animation: caustic-sweep 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.sea-life {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.sea-life img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(0.82) brightness(0.83) drop-shadow(0 12px 12px rgba(0, 18, 28, 0.22));
+  will-change: transform;
+}
+
+.sea-life-fish {
+  top: 14%;
+  left: -34%;
+  width: 29%;
+  opacity: 0.58;
+  animation: fish-passage 34s linear infinite -7s;
+}
+
+.sea-life-fish img {
+  animation: fish-school-breathe 4.8s ease-in-out infinite;
+}
+
+.sea-life-turtle {
+  top: 38%;
+  right: -30%;
+  width: 25%;
+  opacity: 0.54;
+  animation: turtle-passage 49s linear infinite -23s;
+}
+
+.sea-life-turtle img {
+  animation: turtle-glide 6.6s ease-in-out infinite;
+}
+
+.kern-swimmer {
   position: relative;
   z-index: 5;
   display: block;
   width: min(78%, 610px);
+  will-change: transform;
+}
+
+.kern-character {
+  display: block;
+  width: 100%;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 26px 18px rgba(0, 14, 24, 0.42));
   transform-origin: 52% 55%;
-  animation: hd-companion-drift 6.4s ease-in-out infinite;
+  animation: shark-body-glide 4.2s ease-in-out infinite;
   will-change: transform;
 }
 
@@ -628,11 +698,50 @@ h1 span {
 .water-particles span:nth-child(3) { left: 61%; animation-delay: -3.5s; }
 .water-particles span:nth-child(4) { left: 77%; width: 7px; height: 7px; animation-delay: -8s; }
 .water-particles span:nth-child(5) { left: 88%; width: 3px; height: 3px; animation-delay: -4s; }
+.water-particles span:nth-child(6) { left: 9%; width: 4px; height: 4px; animation-delay: -7s; animation-duration: 13s; }
+.water-particles span:nth-child(7) { left: 48%; width: 3px; height: 3px; animation-delay: -10s; animation-duration: 12s; }
+.water-particles span:nth-child(8) { left: 70%; width: 4px; height: 4px; animation-delay: -2s; animation-duration: 14s; }
 
-@keyframes hd-companion-drift {
-  0%,
-  100% { transform: translate3d(-7px, 8px, 0) rotate(-0.5deg); }
-  50% { transform: translate3d(9px, -7px, 0) rotate(0.7deg); }
+@keyframes reef-current {
+  0% { transform: translate3d(-1.2%, -0.4%, 0) scale(1.025); }
+  48% { transform: translate3d(0.5%, 0.35%, 0) scale(1.035); }
+  100% { transform: translate3d(1.1%, -0.15%, 0) scale(1.028); }
+}
+
+@keyframes caustic-sweep {
+  from { transform: translate3d(-4%, -1%, 0) rotate(-1.5deg) scale(1); }
+  to { transform: translate3d(5%, 2%, 0) rotate(1.2deg) scale(1.06); }
+}
+
+@keyframes fish-passage {
+  0% { transform: translate3d(0, 18px, 0) scale(0.78); }
+  22% { transform: translate3d(122%, -5px, 0) scale(0.84); }
+  54% { transform: translate3d(282%, 12px, 0) scale(0.9); }
+  78% { transform: translate3d(405%, -16px, 0) scale(0.84); }
+  100% { transform: translate3d(525%, 6px, 0) scale(0.78); }
+}
+
+@keyframes fish-school-breathe {
+  0%, 100% { transform: rotate(-0.8deg) scaleY(0.99); }
+  50% { transform: rotate(0.8deg) scaleY(1.01); }
+}
+
+@keyframes turtle-passage {
+  0% { transform: translate3d(0, 8px, 0) scale(0.72); }
+  26% { transform: translate3d(-135%, -17px, 0) scale(0.77); }
+  58% { transform: translate3d(-305%, 10px, 0) scale(0.82); }
+  82% { transform: translate3d(-430%, -8px, 0) scale(0.78); }
+  100% { transform: translate3d(-535%, 12px, 0) scale(0.72); }
+}
+
+@keyframes turtle-glide {
+  0%, 100% { transform: rotate(0.7deg) translateY(2px); }
+  50% { transform: rotate(-1deg) translateY(-5px); }
+}
+
+@keyframes shark-body-glide {
+  0%, 100% { transform: scaleX(1) scaleY(1) rotate(0); }
+  50% { transform: scaleX(0.994) scaleY(1.006) rotate(-0.18deg); }
 }
 
 @keyframes hd-companion-celebrate {
@@ -1137,7 +1246,7 @@ noscript {
     aspect-ratio: 4 / 3;
   }
 
-  .kern-character {
+  .kern-swimmer {
     width: 82%;
   }
 
@@ -1154,5 +1263,27 @@ noscript {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .reef-backdrop,
+  .caustic-light,
+  .sea-life,
+  .sea-life img,
+  .kern-character {
+    animation: none !important;
+  }
+
+  .sea-life-fish {
+    top: 10%;
+    left: 4%;
+    opacity: 0.42;
+    transform: scale(0.78);
+  }
+
+  .sea-life-turtle {
+    top: 42%;
+    right: 1%;
+    opacity: 0.4;
+    transform: scale(0.72);
   }
 }

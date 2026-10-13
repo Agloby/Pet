@@ -4,7 +4,7 @@ Milestone 1 provides an installable, dependency-free desktop web app. It renders
 
 Milestone 2 adds optional sync profiles. A profile keeps one server-authoritative pet state across browser sessions, while an offline action queue lets care continue without a connection and safely retries each action once the service returns.
 
-Milestone 3 makes the companion personal and gives it a living habitat. The first-run naming flow and later renames persist locally and through the offline sync queue. The visual refresh uses high-resolution character and reef artwork, subtle ambient depth, mood lighting, and reduced-motion support. The original validated atlas remains preserved with the source package.
+Milestone 3 makes the companion personal and gives it a living habitat. The first-run naming flow and later renames persist locally and through the offline sync queue. The visual refresh uses high-resolution character and reef artwork, a natural non-repeating swim path, drifting reef depth, moving caustic light, bubbles, passing fish and a sea turtle. Reduced-motion preferences keep the habitat still while preserving the scene. The original validated atlas remains preserved with the source package.
 
 ## Run locally
 

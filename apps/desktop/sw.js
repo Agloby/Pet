@@ -1,4 +1,4 @@
-const CACHE_NAME = "kern-desktop-v5";
+const CACHE_NAME = "kern-desktop-v6";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -7,6 +7,8 @@ const APP_FILES = [
   "./assets/kern-icon.svg",
   "./assets/kern-hd.png",
   "./assets/reef-habitat.png",
+  "./assets/reef-fish.png",
+  "./assets/sea-turtle.png",
   "./assets/kern-spritesheet.png",
   "./src/app.js",
   "./src/pet-state.js",
