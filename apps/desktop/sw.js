@@ -1,4 +1,4 @@
-const CACHE_NAME = "kern-desktop-v3";
+const CACHE_NAME = "kern-desktop-v4";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -29,7 +29,30 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request)),
-  );
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+
+  const freshAsset =
+    event.request.mode === "navigate" ||
+    ["document", "script", "style", "manifest"].includes(event.request.destination);
+
+  if (freshAsset) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches
+              .open(CACHE_NAME)
+              .then((cache) => cache.put(event.request, copy))
+              .catch(() => {});
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request)),
+    );
+    return;
+  }
+
+  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });
