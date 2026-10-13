@@ -41,6 +41,16 @@ npm run check
 
 The static client bundle is written to `dist/`, including a copy of the validated atlas. The generated directory is intentionally not committed. The Node sync service runs from the source checkout with `npm start`.
 
+## Figma handoff
+
+Generate the self-contained desktop design with:
+
+```bash
+npm run design:export
+```
+
+Import `design/kern-reef-companion-desktop.svg` into a blank Figma design file by dragging it onto the canvas. The 1440×1024 composition includes editable text, shapes, meters, panels, and named groups; the production reef and character images are embedded so the import has no external asset dependencies.
+
 ## Security and current boundary
 
 The local service hashes passwords with scrypt, issues signed 30-day session tokens, writes its data file atomically, and binds to `127.0.0.1` by default. This is suitable for development and same-computer browser testing. A public or multi-device deployment still requires HTTPS, managed secrets, backups, rate limiting, and a hosted data store.
