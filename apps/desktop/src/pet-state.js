@@ -1,4 +1,6 @@
-export const PET_STATE_VERSION = 1;
+export const PET_STATE_VERSION = 2;
+export const DEFAULT_PET_NAME = "Kern";
+export const MAX_PET_NAME_LENGTH = 24;
 
 const FULLNESS_DECAY_PER_HOUR = 2;
 const HAPPINESS_DECAY_PER_HOUR = 0.75;
@@ -16,7 +18,8 @@ export function createPetState(now = new Date()) {
   const timestamp = now.toISOString();
   return {
     version: PET_STATE_VERSION,
-    name: "Kern",
+    name: DEFAULT_PET_NAME,
+    named: false,
     fullness: 62,
     happiness: 74,
     bond: 0,
@@ -25,6 +28,19 @@ export function createPetState(now = new Date()) {
     lastFedAt: null,
     journal: [],
   };
+}
+
+export function normalizePetName(value) {
+  if (typeof value !== "string") return null;
+  const name = value.normalize("NFC").replace(/\s+/gu, " ").trim();
+  if (
+    name.length === 0 ||
+    Array.from(name).length > MAX_PET_NAME_LENGTH ||
+    /[\p{Cc}\p{Cf}]/u.test(name)
+  ) {
+    return null;
+  }
+  return name;
 }
 
 export function normalizePetState(candidate, now = new Date()) {
@@ -44,7 +60,8 @@ export function normalizePetState(candidate, now = new Date()) {
 
   return {
     version: PET_STATE_VERSION,
-    name: "Kern",
+    name: normalizePetName(candidate.name) || DEFAULT_PET_NAME,
+    named: candidate.named === true,
     fullness: clamp(Number(candidate.fullness) || 0),
     happiness: clamp(Number(candidate.happiness) || 0),
     bond: Math.max(0, Math.floor(Number(candidate.bond) || 0)),
@@ -84,8 +101,8 @@ export function shareSnack(state, now = new Date()) {
   const nextCareCount = current.careCount + 1;
   const message =
     nextCareCount === 1
-      ? "You shared your first snack. Kern is beginning to trust you."
-      : "Kern caught the snack and circled back for a happy wave.";
+      ? `You shared your first snack. ${current.name} is beginning to trust you.`
+      : `${current.name} caught the snack and circled back for a happy wave.`;
 
   return {
     ...current,
@@ -106,18 +123,42 @@ export function shareSnack(state, now = new Date()) {
   };
 }
 
+export function renamePet(state, name, now = new Date()) {
+  const normalizedName = normalizePetName(name);
+  if (!normalizedName) throw new TypeError("Choose a name between 1 and 24 characters.");
+
+  const current = advancePetState(state, now);
+  if (current.name === normalizedName && current.named) return current;
+
+  return {
+    ...current,
+    name: normalizedName,
+    named: true,
+    lastUpdatedAt: now.toISOString(),
+    journal: [
+      {
+        id: `${now.getTime()}-name`,
+        message: `${normalizedName} has a name and a place to call home.`,
+        at: now.toISOString(),
+      },
+      ...current.journal,
+    ].slice(0, MAX_JOURNAL_ENTRIES),
+  };
+}
+
 export function moodFor(state) {
+  const name = normalizePetName(state.name) || DEFAULT_PET_NAME;
   if (state.fullness < 25) {
     return {
       label: "getting hungry",
-      message: "Kern is watching the surface and hoping you brought something tasty.",
+      message: `${name} is watching the surface and hoping you brought something tasty.`,
     };
   }
 
   if (state.happiness >= 88 && state.fullness >= 82) {
     return {
       label: "making waves",
-      message: "Full belly, bright mood. Kern is ready to explore the reef.",
+      message: `Full belly, bright mood. ${name} is ready to explore the reef.`,
     };
   }
 
@@ -130,7 +171,7 @@ export function moodFor(state) {
 
   return {
     label: "happy to see you",
-    message: "Kern remembers your last visit. Another check-in will strengthen your bond.",
+    message: `${name} remembers your last visit. Another check-in will strengthen your bond.`,
   };
 }
 

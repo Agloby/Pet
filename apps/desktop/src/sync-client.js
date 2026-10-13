@@ -119,6 +119,20 @@ export class SyncClient {
     return action;
   }
 
+  enqueueRename(name, now = new Date()) {
+    if (!this.session) return null;
+    const action = {
+      id: globalThis.crypto?.randomUUID?.() || `${now.getTime()}-${Math.random()}`,
+      accountId: this.session.accountId,
+      type: "rename_pet",
+      name,
+      occurredAt: now.toISOString(),
+    };
+    const actions = [...loadPendingActions(this.storage), action];
+    savePendingActions(this.storage, actions);
+    return action;
+  }
+
   async pull() {
     if (!this.session) return { status: "local" };
     const payload = await this.request("/pet", { authenticated: true });
@@ -138,7 +152,12 @@ export class SyncClient {
       latestPayload = await this.request("/pet/actions", {
         method: "POST",
         authenticated: true,
-        body: { actionId: action.id, type: action.type, occurredAt: action.occurredAt },
+        body: {
+          actionId: action.id,
+          type: action.type,
+          occurredAt: action.occurredAt,
+          ...(action.type === "rename_pet" ? { name: action.name } : {}),
+        },
       });
       actions = actions.filter((candidate) => candidate.id !== action.id);
       savePendingActions(this.storage, actions);

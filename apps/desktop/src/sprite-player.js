@@ -23,6 +23,7 @@ export class SpritePlayer {
     this.frameStartedAt = 0;
     this.oneShotResolver = null;
     this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.resizeObserver = null;
   }
 
   async start() {
@@ -31,7 +32,29 @@ export class SpritePlayer {
       this.atlas.addEventListener("error", reject, { once: true });
       this.atlas.src = this.atlasUrl;
     });
+    this.resize();
+    if ("ResizeObserver" in window) {
+      this.resizeObserver = new ResizeObserver(() => this.resize());
+      this.resizeObserver.observe(this.canvas);
+    } else {
+      window.addEventListener("resize", () => this.resize());
+    }
     requestAnimationFrame((timestamp) => this.tick(timestamp));
+  }
+
+  resize() {
+    const cssWidth = Math.max(1, this.canvas.clientWidth || 384);
+    const cssHeight = cssWidth * (CELL_HEIGHT / CELL_WIDTH);
+    const density = Math.min(Math.max(window.devicePixelRatio || 1, 1), 3);
+    const width = Math.round(cssWidth * density);
+    const height = Math.round(cssHeight * density);
+    if (this.canvas.width === width && this.canvas.height === height) return;
+
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.context.imageSmoothingEnabled = true;
+    this.context.imageSmoothingQuality = "high";
+    this.draw(this.frames[this.frameIndex]);
   }
 
   celebrate() {
@@ -71,6 +94,8 @@ export class SpritePlayer {
 
   draw(frame) {
     const { context, canvas } = this;
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(
       this.atlas,

@@ -73,6 +73,30 @@ test("offline delivery leaves the action queued for a later retry", async () => 
   assert.equal(loadPendingActions(storage).length, 1);
 });
 
+test("a queued rename includes the chosen name and clears after sync", async () => {
+  const storage = memoryStorage();
+  saveSyncSession(storage, session);
+  let deliveredBody;
+  const client = new SyncClient({
+    storage,
+    fetchFn: async (_url, options) => {
+      deliveredBody = JSON.parse(options.body);
+      return jsonResponse({
+        petState: { ...createPetState(now), name: "Mako Blue", named: true },
+        revision: 2,
+      });
+    },
+  });
+
+  client.enqueueRename("Mako Blue", now);
+  assert.equal(loadPendingActions(storage)[0].name, "Mako Blue");
+  await client.flush();
+
+  assert.equal(deliveredBody.type, "rename_pet");
+  assert.equal(deliveredBody.name, "Mako Blue");
+  assert.equal(client.pendingCount, 0);
+});
+
 test("an unauthorized response clears the expired session", async () => {
   const storage = memoryStorage();
   saveSyncSession(storage, session);

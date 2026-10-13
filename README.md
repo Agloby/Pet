@@ -10,7 +10,7 @@ Final motion previews are in:
 
 `Great White Shark/work/qa/previews-final/`
 
-The Google Drive source copy is preserved separately. The application prototype is available in [`apps/desktop`](./apps/desktop/): milestone 1 renders Kern and persists a complete care interaction locally, while milestone 2 adds authenticated sync profiles, idempotent server actions, and an offline retry queue. Hosted deployment and native iPhone and Garmin clients remain future milestones.
+The Google Drive source copy is preserved separately. The application prototype is available in [`apps/desktop`](./apps/desktop/): milestone 1 renders Kern and persists a complete care interaction locally, milestone 2 adds authenticated offline-first sync, and milestone 3 adds pet naming, high-density rendering, and a responsive living reef. Hosted deployment and native iPhone and Garmin clients remain future milestones.
 
 Run the desktop prototype with:
 

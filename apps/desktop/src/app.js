@@ -3,6 +3,7 @@ import {
   bondLabel,
   createPetState,
   moodFor,
+  renamePet,
   shareSnack,
 } from "./pet-state.js";
 import { clearPetState, loadPetState, savePetState } from "./storage.js";
@@ -12,6 +13,11 @@ import { SyncClient } from "./sync-client.js";
 const elements = {
   moodLabel: document.querySelector("#mood-label"),
   moodMessage: document.querySelector("#mood-message"),
+  petNameButton: document.querySelector("#pet-name-button"),
+  brandName: document.querySelector("#brand-name"),
+  brandMark: document.querySelector("#brand-mark"),
+  brandLink: document.querySelector("#brand-link"),
+  lagoon: document.querySelector("#lagoon"),
   fullnessValue: document.querySelector("#fullness-value"),
   fullnessMeter: document.querySelector("#fullness-meter"),
   happinessValue: document.querySelector("#happiness-value"),
@@ -20,6 +26,8 @@ const elements = {
   careCount: document.querySelector("#care-count"),
   journalList: document.querySelector("#journal-list"),
   careButton: document.querySelector("#care-button"),
+  careDescription: document.querySelector("#care-description"),
+  carePanel: document.querySelector("#care-panel"),
   resetButton: document.querySelector("#reset-button"),
   canvas: document.querySelector("#kern-canvas"),
   syncButton: document.querySelector("#sync-button"),
@@ -37,10 +45,18 @@ const elements = {
   signInButton: document.querySelector("#sign-in-button"),
   createAccountButton: document.querySelector("#create-account-button"),
   accountUsername: document.querySelector("#account-username"),
+  accountAvatar: document.querySelector("#account-avatar"),
   accountSyncState: document.querySelector("#account-sync-state"),
   accountMessage: document.querySelector("#account-message"),
   syncNowButton: document.querySelector("#sync-now-button"),
   signOutButton: document.querySelector("#sign-out-button"),
+  nameDialog: document.querySelector("#name-dialog"),
+  nameClose: document.querySelector("#name-close"),
+  nameForm: document.querySelector("#name-form"),
+  nameInput: document.querySelector("#pet-name-input"),
+  nameMessage: document.querySelector("#name-message"),
+  keepNameButton: document.querySelector("#keep-name-button"),
+  syncPetName: document.querySelector("#sync-pet-name"),
 };
 
 let state = advancePetState(loadPetState(window.localStorage));
@@ -95,7 +111,21 @@ function render() {
   const mood = moodFor(state);
   const fullness = Math.round(state.fullness);
   const happiness = Math.round(state.happiness);
+  const habitatMood = state.fullness < 25 ? "hungry" : happiness >= 88 ? "joyful" : "calm";
 
+  elements.petNameButton.textContent = state.name;
+  elements.petNameButton.title = `Rename ${state.name}`;
+  elements.brandName.textContent = state.name;
+  const initial = Array.from(state.name)[0]?.toLocaleUpperCase() || "K";
+  elements.brandMark.textContent = initial;
+  elements.accountAvatar.textContent = initial;
+  elements.brandLink.setAttribute("aria-label", `${state.name} home`);
+  elements.lagoon.setAttribute("aria-label", `Animated ${state.name} in a coral lagoon`);
+  elements.carePanel.setAttribute("aria-label", `${state.name}’s current state`);
+  elements.lagoon.dataset.mood = habitatMood;
+  elements.careDescription.textContent = `Build trust and refill ${state.name}’s belly`;
+  elements.syncPetName.textContent = state.name;
+  document.title = `${state.name} — Reef Companion`;
   elements.moodLabel.textContent = mood.label;
   elements.moodMessage.textContent = mood.message;
   elements.fullnessValue.textContent = `${fullness}%`;
@@ -109,7 +139,7 @@ function render() {
   if (state.journal.length === 0) {
     const empty = document.createElement("li");
     empty.className = "journal-empty";
-    empty.textContent = "Your first shared moment with Kern will appear here.";
+    empty.textContent = `Your first shared moment with ${state.name} will appear here.`;
     elements.journalList.append(empty);
   } else {
     for (const entry of state.journal) {
@@ -149,7 +179,7 @@ async function synchronize() {
       const result = await syncClient.flush();
       adoptRemoteState(result.petState);
       setSyncState("synced", "Synced");
-      setDialogMessage(elements.accountMessage, "Kern is up to date.", "success");
+      setDialogMessage(elements.accountMessage, `${state.name} is up to date.`, "success");
       return result;
     } catch (error) {
       if (error.code === "offline") {
@@ -158,7 +188,7 @@ async function synchronize() {
         setDialogMessage(
           elements.accountMessage,
           pending
-            ? `${pending} care action${pending === 1 ? " is" : "s are"} waiting for a connection.`
+            ? `${pending} change${pending === 1 ? " is" : "s are"} waiting for a connection.`
             : "The sync service is currently unreachable.",
         );
       } else if (error.code === "unauthorized") {
@@ -207,6 +237,35 @@ function handleReset() {
   state = createPetState();
   savePetState(window.localStorage, state);
   render();
+  openNameDialog();
+}
+
+function openNameDialog() {
+  elements.nameInput.value = state.name;
+  setDialogMessage(elements.nameMessage);
+  if (!elements.nameDialog.open) {
+    elements.nameDialog.showModal();
+    elements.nameInput.select();
+  }
+}
+
+async function handleRename(name) {
+  try {
+    state = renamePet(state, name);
+  } catch (error) {
+    setDialogMessage(elements.nameMessage, error.message);
+    elements.nameInput.focus();
+    return;
+  }
+
+  savePetState(window.localStorage, state);
+  if (syncClient.isAuthenticated) {
+    syncClient.enqueueRename(state.name);
+    setSyncState("pending", `${syncClient.pendingCount} waiting`);
+  }
+  render();
+  elements.nameDialog.close();
+  await synchronize();
 }
 
 function setAuthBusy(busy) {
@@ -234,7 +293,7 @@ async function authenticate(mode) {
     adoptRemoteState(result.petState);
     elements.syncPassword.value = "";
     setSyncState("synced", "Synced");
-    setDialogMessage(elements.accountMessage, "Kern is connected to this profile.", "success");
+    setDialogMessage(elements.accountMessage, `${state.name} is connected to this profile.`, "success");
     renderSync();
     await synchronize();
   } catch (error) {
@@ -254,6 +313,13 @@ function handleSignOut() {
 
 elements.careButton.addEventListener("click", handleCare);
 elements.resetButton.addEventListener("click", handleReset);
+elements.petNameButton.addEventListener("click", openNameDialog);
+elements.nameClose.addEventListener("click", () => elements.nameDialog.close());
+elements.nameForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  handleRename(elements.nameInput.value);
+});
+elements.keepNameButton.addEventListener("click", () => handleRename("Kern"));
 elements.syncButton.addEventListener("click", () => {
   renderSync();
   elements.syncDialog.showModal();
@@ -275,13 +341,18 @@ spritePlayer
   .start()
   .then(() => {
     elements.careButton.disabled = false;
+    if (!syncClient.isAuthenticated && !state.named) openNameDialog();
   })
   .catch(() => {
-    elements.moodMessage.textContent = "Kern’s atlas could not be loaded. Refresh to try again.";
+    elements.moodMessage.textContent = `${state.name}’s atlas could not be loaded. Refresh to try again.`;
     elements.careButton.disabled = true;
   });
 
-if (syncClient.isAuthenticated) synchronize();
+if (syncClient.isAuthenticated) {
+  synchronize().then(() => {
+    if (!state.named) openNameDialog();
+  });
+}
 
 window.setInterval(() => {
   state = advancePetState(state);

@@ -56,7 +56,8 @@ export function loadPendingActions(storage) {
       (action) =>
         typeof action?.id === "string" &&
         typeof action?.accountId === "string" &&
-        action.type === "share_snack" &&
+        ["share_snack", "rename_pet"].includes(action.type) &&
+        (action.type !== "rename_pet" || typeof action.name === "string") &&
         typeof action?.occurredAt === "string",
     );
   } catch {

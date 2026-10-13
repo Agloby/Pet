@@ -13,7 +13,13 @@ import {
   verifyToken,
 } from "./auth.mjs";
 import { JsonAccountStore } from "./store.mjs";
-import { advancePetState, normalizePetState, shareSnack } from "../src/pet-state.js";
+import {
+  advancePetState,
+  normalizePetName,
+  normalizePetState,
+  renamePet,
+  shareSnack,
+} from "../src/pet-state.js";
 
 const MAX_BODY_BYTES = 64 * 1_024;
 const MAX_PROCESSED_ACTIONS = 100;
@@ -81,7 +87,7 @@ async function handleApi(request, response, url, context) {
   const timestamp = now();
 
   if (request.method === "GET" && url.pathname === "/api/health") {
-    sendJson(response, 200, { ok: true, service: "kern-sync", version: 1 });
+    sendJson(response, 200, { ok: true, service: "kern-sync", version: 2 });
     return true;
   }
 
@@ -158,11 +164,14 @@ async function handleApi(request, response, url, context) {
 
     if (request.method === "POST" && url.pathname === "/api/pet/actions") {
       const body = await readJson(request);
+      const validActionType = ["share_snack", "rename_pet"].includes(body.type);
+      const validRename = body.type !== "rename_pet" || normalizePetName(body.name);
       if (
         typeof body.actionId !== "string" ||
         body.actionId.length < 8 ||
         body.actionId.length > 100 ||
-        body.type !== "share_snack"
+        !validActionType ||
+        !validRename
       ) {
         sendJson(response, 400, { error: "The pet action is invalid." });
         return true;
@@ -170,7 +179,10 @@ async function handleApi(request, response, url, context) {
 
       const duplicate = account.processedActions.includes(body.actionId);
       if (!duplicate) {
-        account.petState = shareSnack(account.petState, timestamp);
+        account.petState =
+          body.type === "rename_pet"
+            ? renamePet(account.petState, body.name, timestamp)
+            : shareSnack(account.petState, timestamp);
         account.revision += 1;
         account.processedActions = [body.actionId, ...account.processedActions].slice(
           0,

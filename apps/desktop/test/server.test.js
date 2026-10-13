@@ -98,10 +98,41 @@ test("authenticated sync API persists state and deduplicates care actions", asyn
   assert.equal(duplicateAction.payload.petState.careCount, 2);
   assert.equal(duplicateAction.payload.revision, 2);
 
+  const renameActionId = "action-rename-0001";
+  const renameAction = await jsonRequest(baseUrl, "/api/pet/actions", {
+    method: "POST",
+    token: login.payload.token,
+    body: {
+      actionId: renameActionId,
+      type: "rename_pet",
+      name: "Mako Blue",
+      occurredAt: timestamp.toISOString(),
+    },
+  });
+  assert.equal(renameAction.response.status, 200);
+  assert.equal(renameAction.payload.petState.name, "Mako Blue");
+  assert.equal(renameAction.payload.petState.named, true);
+  assert.equal(renameAction.payload.revision, 3);
+
+  const duplicateRename = await jsonRequest(baseUrl, "/api/pet/actions", {
+    method: "POST",
+    token: login.payload.token,
+    body: {
+      actionId: renameActionId,
+      type: "rename_pet",
+      name: "A different name",
+      occurredAt: timestamp.toISOString(),
+    },
+  });
+  assert.equal(duplicateRename.payload.duplicate, true);
+  assert.equal(duplicateRename.payload.petState.name, "Mako Blue");
+  assert.equal(duplicateRename.payload.revision, 3);
+
   const secondDevice = await jsonRequest(baseUrl, "/api/auth/login", {
     method: "POST",
     body: { username: "reefkeeper", password: "ocean-current-42" },
   });
   assert.equal(secondDevice.payload.petState.careCount, 2);
-  assert.equal(secondDevice.payload.revision, 2);
+  assert.equal(secondDevice.payload.petState.name, "Mako Blue");
+  assert.equal(secondDevice.payload.revision, 3);
 });

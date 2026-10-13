@@ -6,7 +6,9 @@ import {
   bondLabel,
   createPetState,
   moodFor,
+  normalizePetName,
   normalizePetState,
+  renamePet,
   shareSnack,
 } from "../src/pet-state.js";
 
@@ -42,6 +44,21 @@ test("sharing a snack completes a care loop and records it", () => {
   assert.match(caredFor.journal[0].message, /first snack/i);
   assert.equal(caredFor.lastFedAt, start.toISOString());
   assert.equal(bondLabel(caredFor.bond), "First connection");
+});
+
+test("a companion can be named and restored without changing care progress", () => {
+  const original = shareSnack(createPetState(start), start);
+  const named = renamePet(original, "  Mako   Blue  ", start);
+  const restored = normalizePetState(named, start);
+
+  assert.equal(named.name, "Mako Blue");
+  assert.equal(named.named, true);
+  assert.equal(named.careCount, original.careCount);
+  assert.match(named.journal[0].message, /Mako Blue has a name/);
+  assert.equal(restored.name, "Mako Blue");
+  assert.equal(restored.named, true);
+  assert.equal(normalizePetName("\u0000hidden"), null);
+  assert.equal(normalizePetName("x".repeat(25)), null);
 });
 
 test("care values are capped and journal history remains bounded", () => {

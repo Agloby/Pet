@@ -1,7 +1,7 @@
 {
-  "name": "Kern — Desktop Companion",
+  "name": "Kern — Reef Companion",
   "short_name": "Kern",
-  "description": "A local desktop companion prototype for Kern, the great white shark.",
+  "description": "Name, care for, and explore a living reef with your great white shark companion.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

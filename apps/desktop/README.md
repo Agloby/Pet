@@ -4,6 +4,8 @@ Milestone 1 provides an installable, dependency-free desktop web app. It renders
 
 Milestone 2 adds optional sync profiles. A profile keeps one server-authoritative pet state across browser sessions, while an offline action queue lets care continue without a connection and safely retries each action once the service returns.
 
+Milestone 3 makes the companion personal and gives it a living habitat. The first-run naming flow and later renames persist locally and through the offline sync queue. The renderer adapts its canvas backing resolution to the screen, while the lagoon adds layered water, reef life, mood lighting, and reduced-motion support.
+
 ## Run locally
 
 From this directory:
@@ -27,8 +29,8 @@ Open the port printed by the server. `PORT`, `HOST`, and `KERN_DATA_FILE` can ov
 
 - Create a profile from the status button in the top-right corner. The current local pet state becomes the profile's starting state.
 - Sign in with the same profile in another browser session to restore the server state.
-- Care actions update the local UI first. If the service is unavailable, they remain in the browser queue and flush automatically after reconnection.
-- Action IDs are retained by the server to prevent duplicate care when a request is retried.
+- Care and naming changes update the local UI first. If the service is unavailable, they remain in the browser queue and flush automatically after reconnection.
+- Action IDs are retained by the server to prevent duplicate changes when a request is retried.
 - Sync accounts, password hashes, the signing secret, and pet state are stored in `.data/kern-sync.json` by default. The directory is ignored by Git.
 
 ## Validate and build
