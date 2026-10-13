@@ -7,7 +7,7 @@ import {
   shareSnack,
 } from "./pet-state.js";
 import { clearPetState, loadPetState, savePetState } from "./storage.js";
-import { SpritePlayer } from "./sprite-player.js";
+import { CharacterPlayer } from "./sprite-player.js";
 import { SyncClient } from "./sync-client.js";
 
 const elements = {
@@ -29,7 +29,7 @@ const elements = {
   careDescription: document.querySelector("#care-description"),
   carePanel: document.querySelector("#care-panel"),
   resetButton: document.querySelector("#reset-button"),
-  canvas: document.querySelector("#kern-canvas"),
+  character: document.querySelector("#kern-character"),
   syncButton: document.querySelector("#sync-button"),
   syncDot: document.querySelector("#sync-dot"),
   syncLabel: document.querySelector("#sync-label"),
@@ -63,7 +63,7 @@ let state = advancePetState(loadPetState(window.localStorage));
 let syncState = { kind: "local", label: "Local only" };
 let syncInFlight = null;
 const syncClient = new SyncClient({ storage: window.localStorage });
-const spritePlayer = new SpritePlayer(elements.canvas, "./assets/kern-spritesheet.png");
+const characterPlayer = new CharacterPlayer(elements.character);
 
 const formatTime = (timestamp) =>
   new Intl.DateTimeFormat(undefined, {
@@ -218,7 +218,7 @@ async function handleCare() {
   }
 
   render();
-  await Promise.all([spritePlayer.celebrate(), synchronize()]);
+  await Promise.all([characterPlayer.celebrate(), synchronize()]);
   elements.careButton.disabled = false;
   elements.careButton.focus({ preventScroll: true });
 }
@@ -337,14 +337,14 @@ render();
 renderSync();
 savePetState(window.localStorage, state);
 
-spritePlayer
+characterPlayer
   .start()
   .then(() => {
     elements.careButton.disabled = false;
     if (!syncClient.isAuthenticated && !state.named) openNameDialog();
   })
   .catch(() => {
-    elements.moodMessage.textContent = `${state.name}’s atlas could not be loaded. Refresh to try again.`;
+    elements.moodMessage.textContent = `${state.name}’s artwork could not be loaded. Refresh to try again.`;
     elements.careButton.disabled = true;
   });
 

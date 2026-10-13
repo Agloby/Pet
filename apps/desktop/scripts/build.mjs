@@ -18,7 +18,7 @@ for (const file of ["index.html", "styles.css", "manifest.webmanifest", "sw.js"]
 }
 
 await cp(path.join(appRoot, "src"), path.join(outputRoot, "src"), { recursive: true });
-await cp(path.join(appRoot, "assets/kern-icon.svg"), path.join(outputRoot, "assets/kern-icon.svg"));
+await cp(path.join(appRoot, "assets"), path.join(outputRoot, "assets"), { recursive: true });
 await cp(atlasSource, path.join(outputRoot, "assets/kern-spritesheet.png"));
 
 console.log(`Built Kern desktop prototype at ${outputRoot}`);

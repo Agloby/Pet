@@ -558,6 +558,98 @@ h1 span {
   to { transform: rotate(6deg); }
 }
 
+/* High-resolution habitat art replaces the milestone 3 CSS reef study. */
+.lagoon {
+  min-height: 430px;
+  aspect-ratio: 1586 / 992;
+  border: 1px solid rgba(173, 235, 224, 0.22);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(3, 33, 49, 0.04), rgba(2, 19, 29, 0.18)),
+    url("./assets/reef-habitat.png") center / cover no-repeat;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 -50px 75px rgba(1, 15, 25, 0.18),
+    0 28px 58px rgba(0, 7, 13, 0.3);
+}
+
+.lagoon::before {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 52% 49%, transparent 25%, rgba(4, 35, 47, 0.13) 72%),
+    linear-gradient(100deg, rgba(1, 25, 34, 0.16), transparent 28% 74%, rgba(1, 25, 34, 0.12));
+  content: "";
+  pointer-events: none;
+}
+
+.kern-character {
+  position: relative;
+  z-index: 5;
+  display: block;
+  width: min(78%, 610px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 26px 18px rgba(0, 14, 24, 0.42));
+  transform-origin: 52% 55%;
+  animation: hd-companion-drift 6.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.kern-character.is-celebrating {
+  animation: hd-companion-celebrate 1.35s cubic-bezier(0.22, 0.8, 0.24, 1);
+}
+
+.water-particles {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.water-particles span {
+  position: absolute;
+  bottom: -16px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgba(222, 255, 247, 0.58);
+  border-radius: 50%;
+  box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.45);
+  opacity: 0;
+  animation: fine-bubble-rise 10s linear infinite;
+}
+
+.water-particles span:nth-child(1) { left: 19%; animation-delay: -1s; }
+.water-particles span:nth-child(2) { left: 34%; width: 9px; height: 9px; animation-delay: -6s; }
+.water-particles span:nth-child(3) { left: 61%; animation-delay: -3.5s; }
+.water-particles span:nth-child(4) { left: 77%; width: 7px; height: 7px; animation-delay: -8s; }
+.water-particles span:nth-child(5) { left: 88%; width: 3px; height: 3px; animation-delay: -4s; }
+
+@keyframes hd-companion-drift {
+  0%,
+  100% { transform: translate3d(-7px, 8px, 0) rotate(-0.5deg); }
+  50% { transform: translate3d(9px, -7px, 0) rotate(0.7deg); }
+}
+
+@keyframes hd-companion-celebrate {
+  0%,
+  100% { transform: translate3d(0, 0, 0) rotate(0) scale(1); }
+  28% { transform: translate3d(12px, -22px, 0) rotate(-3deg) scale(1.035); }
+  56% { transform: translate3d(-8px, -9px, 0) rotate(2.5deg) scale(1.02); }
+  78% { transform: translate3d(5px, -4px, 0) rotate(-1deg) scale(1.01); }
+}
+
+@keyframes fine-bubble-rise {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.7); }
+  14%,
+  76% { opacity: 0.56; }
+  100% { opacity: 0; transform: translate3d(20px, -390px, 0) scale(1.1); }
+}
+
 .primary-action {
   display: flex;
   width: 100%;
@@ -1015,6 +1107,12 @@ noscript {
     padding: 38px 28px 32px;
   }
 
+  .lagoon {
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 3 / 2;
+  }
+
   .care-panel {
     min-height: 520px;
     border-top: 1px solid var(--panel-border);
@@ -1035,7 +1133,12 @@ noscript {
   }
 
   .lagoon {
-    min-height: 290px;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+
+  .kern-character {
+    width: 82%;
   }
 
   .care-panel {

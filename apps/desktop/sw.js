@@ -1,10 +1,12 @@
-const CACHE_NAME = "kern-desktop-v4";
+const CACHE_NAME = "kern-desktop-v5";
 const APP_FILES = [
   "./",
   "./index.html",
   "./styles.css",
   "./manifest.webmanifest",
   "./assets/kern-icon.svg",
+  "./assets/kern-hd.png",
+  "./assets/reef-habitat.png",
   "./assets/kern-spritesheet.png",
   "./src/app.js",
   "./src/pet-state.js",
