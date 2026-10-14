@@ -1,0 +1,3 @@
+#include "Shared.xcconfig"
+SWIFT_COMPILATION_MODE = wholemodule
+KERN_APNS_ENVIRONMENT = production

@@ -2,7 +2,7 @@
 
 Milestone 4 runs the Kern web client and sync API as one HTTPS service backed by PostgreSQL. Local development continues to use the ignored JSON store, while production refuses to start without durable PostgreSQL storage and a stable signing secret.
 
-Milestone 5 uses the same service and secret for Web Push care alerts; no additional production variable is required. See [`milestone-5-notifications.md`](./milestone-5-notifications.md).
+Milestone 5 uses the same service and secret for Web Push care alerts; no additional production variable is required. Milestone 6 optionally adds Apple Push Notification service credentials for the native iPhone app. See [`milestone-5-notifications.md`](./milestone-5-notifications.md) and [`milestone-6-ios.md`](./milestone-6-ios.md).
 
 ## Deploy with Render
 
@@ -30,6 +30,11 @@ Render plan availability changes over time. If `free` is unavailable for either 
 | `KERN_PUBLIC_ORIGIN` | Optional canonical HTTPS origin. Render supplies `RENDER_EXTERNAL_URL` automatically. |
 | `KERN_REQUIRE_HTTPS` | Optional boolean override. Defaults to `true` in production. |
 | `KERN_TRUST_PROXY` | Optional boolean override. Defaults to `true` in production. |
+| `KERN_APNS_KEY_ID` | Optional Apple APNs authentication key ID; all four APNs identity fields are required together. |
+| `KERN_APNS_TEAM_ID` | Optional Apple Developer Team ID. |
+| `KERN_APNS_PRIVATE_KEY` | Optional secret contents of the APNs `.p8` private key. |
+| `KERN_APNS_BUNDLE_ID` | Optional native app bundle ID used as the APNs topic. |
+| `KERN_APNS_ENVIRONMENT` | `production` by default; use `sandbox` for Debug device builds. |
 
 Never commit the database URL or signing secret. Rotating `KERN_SYNC_SECRET` signs out existing sessions but does not delete account data.
 

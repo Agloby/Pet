@@ -1,0 +1,5 @@
+KERN_APP_BUNDLE_ID = com.agloby.kern
+KERN_WIDGET_BUNDLE_ID = com.agloby.kern.widget
+KERN_API_BASE_URL = https:/$()/kern-reef-companion.onrender.com
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM =

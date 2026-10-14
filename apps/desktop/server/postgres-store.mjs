@@ -18,6 +18,7 @@ function accountFromRow(row) {
     processedActions: row.processed_actions,
     notificationSettings: row.notification_settings,
     pushSubscriptions: row.push_subscriptions,
+    nativeDevices: row.native_devices,
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
   });
@@ -31,6 +32,7 @@ const accountValues = (account, now) => [
   JSON.stringify(account.processedActions),
   JSON.stringify(account.notificationSettings),
   JSON.stringify(account.pushSubscriptions),
+  JSON.stringify(account.nativeDevices),
   now,
   account.id,
 ];
@@ -60,6 +62,7 @@ export class PostgresAccountStore {
         processed_actions JSONB NOT NULL DEFAULT '[]'::jsonb,
         notification_settings JSONB NOT NULL DEFAULT '{}'::jsonb,
         push_subscriptions JSONB NOT NULL DEFAULT '[]'::jsonb,
+        native_devices JSONB NOT NULL DEFAULT '[]'::jsonb,
         created_at TIMESTAMPTZ NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL
       )
@@ -69,6 +72,9 @@ export class PostgresAccountStore {
     );
     await this.pool.query(
       "ALTER TABLE kern_accounts ADD COLUMN IF NOT EXISTS push_subscriptions JSONB NOT NULL DEFAULT '[]'::jsonb",
+    );
+    await this.pool.query(
+      "ALTER TABLE kern_accounts ADD COLUMN IF NOT EXISTS native_devices JSONB NOT NULL DEFAULT '[]'::jsonb",
     );
     await this.pool.query(
       "CREATE INDEX IF NOT EXISTS kern_accounts_updated_at_idx ON kern_accounts (updated_at)",
@@ -117,8 +123,8 @@ export class PostgresAccountStore {
       `UPDATE kern_accounts
        SET username = $1, password = $2::jsonb, pet_state = $3::jsonb, revision = $4,
            processed_actions = $5::jsonb, notification_settings = $6::jsonb,
-           push_subscriptions = $7::jsonb, updated_at = $8
-       WHERE id = $9
+           push_subscriptions = $7::jsonb, native_devices = $8::jsonb, updated_at = $9
+       WHERE id = $10
        RETURNING *`,
       accountValues(account, timestamp),
     );
@@ -145,8 +151,8 @@ export class PostgresAccountStore {
         `UPDATE kern_accounts
          SET username = $1, password = $2::jsonb, pet_state = $3::jsonb, revision = $4,
              processed_actions = $5::jsonb, notification_settings = $6::jsonb,
-             push_subscriptions = $7::jsonb, updated_at = $8
-         WHERE id = $9
+             push_subscriptions = $7::jsonb, native_devices = $8::jsonb, updated_at = $9
+         WHERE id = $10
          RETURNING *`,
         accountValues(account, timestamp),
       );
@@ -174,6 +180,8 @@ export class PostgresAccountStore {
       `SELECT * FROM kern_accounts
        WHERE notification_settings->>'enabled' = 'true'`,
     );
-    return result.rows.map(accountFromRow).filter((account) => account.pushSubscriptions.length > 0);
+    return result.rows.map(accountFromRow).filter(
+      (account) => account.pushSubscriptions.length + account.nativeDevices.length > 0,
+    );
   }
 }

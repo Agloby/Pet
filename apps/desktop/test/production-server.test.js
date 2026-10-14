@@ -39,7 +39,7 @@ test("health checks include storage readiness and browser security headers", asy
   });
   const payload = await response.json();
   assert.equal(response.status, 200);
-  assert.deepEqual(payload, { ok: true, service: "kern-sync", storage: "json", version: 5 });
+  assert.deepEqual(payload, { ok: true, service: "kern-sync", storage: "json", version: 6 });
   assert.match(response.headers.get("content-security-policy"), /frame-ancestors 'none'/);
   assert.equal(response.headers.get("strict-transport-security"), "max-age=31536000; includeSubDomains");
   assert.equal(response.headers.get("x-frame-options"), "DENY");

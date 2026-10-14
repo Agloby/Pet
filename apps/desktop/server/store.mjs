@@ -94,6 +94,7 @@ export class JsonAccountStore {
       processedActions: [],
       notificationSettings: null,
       pushSubscriptions: [],
+      nativeDevices: [],
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
     };
@@ -128,7 +129,8 @@ export class JsonAccountStore {
   notificationAccounts() {
     return Object.values(this.data.accounts).filter((account) => {
       normalizeAccountNotifications(account);
-      return account.notificationSettings.enabled && account.pushSubscriptions.length > 0;
+      return account.notificationSettings.enabled &&
+        account.pushSubscriptions.length + account.nativeDevices.length > 0;
     });
   }
 }

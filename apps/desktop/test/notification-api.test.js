@@ -23,8 +23,13 @@ test("authenticated profiles can manage and test a browser notification subscrip
   const temporaryRoot = mkdtempSync(path.join(tmpdir(), "kern-notification-api-test-"));
   const notificationService = {
     publicKey: "test-public-key",
+    nativeSender: {},
     async sendTest(account) {
-      return { delivered: account.pushSubscriptions.length, expired: [] };
+      return {
+        delivered: account.pushSubscriptions.length + account.nativeDevices.length,
+        expired: [],
+        expiredNativeTokens: [],
+      };
     },
   };
   const server = createKernServer({
@@ -83,6 +88,19 @@ test("authenticated profiles can manage and test a browser notification subscrip
   assert.equal(testAlert.response.status, 200);
   assert.equal(testAlert.payload.delivered, 1);
 
+  const deviceToken = "a".repeat(64);
+  const nativeCreated = await request(baseUrl, "/api/notifications/native-devices", {
+    method: "POST",
+    token,
+    body: {
+      device: { token: deviceToken, environment: "sandbox" },
+      preferences: { fullnessThreshold: 35, cooldownHours: 12 },
+    },
+  });
+  assert.equal(nativeCreated.response.status, 201);
+  assert.equal(nativeCreated.payload.nativeDeviceCount, 1);
+  assert.equal(nativeCreated.payload.nativePushAvailable, true);
+
   const removed = await request(baseUrl, "/api/notifications/subscriptions", {
     method: "DELETE",
     token,
@@ -90,5 +108,14 @@ test("authenticated profiles can manage and test a browser notification subscrip
   });
   assert.equal(removed.response.status, 200);
   assert.equal(removed.payload.subscriptionCount, 0);
-  assert.equal(removed.payload.preferences.enabled, false);
+  assert.equal(removed.payload.preferences.enabled, true);
+
+  const nativeRemoved = await request(baseUrl, "/api/notifications/native-devices", {
+    method: "DELETE",
+    token,
+    body: { token: deviceToken },
+  });
+  assert.equal(nativeRemoved.response.status, 200);
+  assert.equal(nativeRemoved.payload.nativeDeviceCount, 0);
+  assert.equal(nativeRemoved.payload.preferences.enabled, false);
 });

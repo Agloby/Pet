@@ -10,6 +10,8 @@ Milestone 4 makes the sync service deployable. Production uses PostgreSQL with t
 
 Milestone 5 lets the reef reach back. Signed-in users can enable Web Push care alerts on each browser, choose a fullness threshold and reminder cooldown, and send an immediate test. Subscriptions and preferences are stored with the sync profile, expired endpoints are removed automatically, and the server evaluates authoritative pet decay every 15 minutes. VAPID keys are deterministically derived from the existing stable sync secret, so deployments do not need another manually paired secret.
 
+Milestone 6 adds the native iPhone client in `../ios`. This service now stores environment-scoped APNs device tokens alongside browser subscriptions and can deliver the same test and scheduled care reminders through Apple Push Notification service when optional Apple credentials are configured.
+
 ## Run locally
 
 From this directory:
@@ -52,6 +54,8 @@ See [`../../docs/milestone-4-deployment.md`](../../docs/milestone-4-deployment.m
 
 See [`../../docs/milestone-5-notifications.md`](../../docs/milestone-5-notifications.md) for browser support, care-alert behavior, and notification acceptance checks.
 
+See [`../../docs/milestone-6-ios.md`](../../docs/milestone-6-ios.md) for the iPhone project, signing, APNs configuration, and native acceptance checks.
+
 ## Figma handoff
 
 Generate the self-contained desktop design with:
@@ -66,4 +70,4 @@ Import `design/kern-reef-companion-desktop.svg` into a blank Figma design file b
 
 The service hashes passwords with scrypt and issues signed 30-day session tokens. Local development writes its data file atomically and binds to `127.0.0.1`. Production refuses to start without PostgreSQL and a signing secret, expects HTTPS at the hosting proxy, and adds rate limits, origin validation, security headers, database readiness checks, and structured logs. The hosting account must enable managed database backups before real user data is stored.
 
-Push endpoints are treated as account data and are never included in request logs. Signing out removes this browser's subscription. Alerts require HTTPS outside localhost and a continuously running application process. Native iPhone and Garmin clients remain later milestones.
+Push endpoints and native device tokens are treated as account data and are never included in request logs. Signing out removes the current client’s subscription. Alerts require HTTPS outside localhost and a continuously running application process. Apple signing and APNs credentials remain operator-managed secrets; Garmin remains a later milestone.

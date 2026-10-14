@@ -1,4 +1,5 @@
 import { createAccountStore } from "../server/create-store.mjs";
+import { ApnsNotificationService } from "../server/apns.mjs";
 import { loadRuntimeConfig } from "../server/config.mjs";
 import { CareNotificationService } from "../server/notifications.mjs";
 import { createKernServer } from "../server/server.mjs";
@@ -30,11 +31,15 @@ const store = await createAccountStore({
   dataFile: config.dataFile,
   tokenSecret: config.tokenSecret,
 });
+const nativeNotificationService = config.apns
+  ? new ApnsNotificationService(config.apns)
+  : null;
 const notificationService = new CareNotificationService({
   store,
   tokenSecret: store.tokenSecret,
   publicOrigin: config.publicOrigin,
   logger,
+  nativeSender: nativeNotificationService,
 });
 const server = createKernServer({
   appRoot: config.staticRoot,

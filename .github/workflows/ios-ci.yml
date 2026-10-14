@@ -1,0 +1,36 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: apps/ios
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Select an iPhone simulator
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available --json | ruby -rjson -e 'devices = JSON.parse(STDIN.read)["devices"].values.flatten; phone = devices.find { |d| d["name"].start_with?("iPhone") && d["isAvailable"] }; abort "No iPhone simulator available" unless phone; print phone["udid"]')
+          echo "KERN_SIMULATOR_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+      - name: Build and test
+        run: >-
+          xcodebuild test
+          -project Kern.xcodeproj
+          -scheme Kern
+          -destination "id=$KERN_SIMULATOR_ID"
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          COMPILER_INDEX_STORE_ENABLE=NO
+

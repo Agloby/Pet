@@ -3,6 +3,7 @@ import { createECDH, createHmac } from "node:crypto";
 import webPush from "web-push";
 
 import { advancePetState } from "../src/pet-state.js";
+import { normalizeNativeDevice } from "./apns.mjs";
 
 export const DEFAULT_NOTIFICATION_SETTINGS = Object.freeze({
   enabled: false,
@@ -68,6 +69,9 @@ export function normalizeAccountNotifications(account) {
   account.pushSubscriptions = Array.isArray(account.pushSubscriptions)
     ? account.pushSubscriptions.map(normalizePushSubscription).filter(Boolean).slice(-10)
     : [];
+  account.nativeDevices = Array.isArray(account.nativeDevices)
+    ? account.nativeDevices.map(normalizeNativeDevice).filter(Boolean).slice(-10)
+    : [];
   return account;
 }
 
@@ -96,7 +100,10 @@ export function deriveVapidKeys(secret) {
 
 export function careReminderFor(account, now = new Date()) {
   const settings = normalizeNotificationSettings(account.notificationSettings);
-  if (!settings.enabled || !Array.isArray(account.pushSubscriptions) || account.pushSubscriptions.length === 0) {
+  const deliveryTargetCount =
+    (Array.isArray(account.pushSubscriptions) ? account.pushSubscriptions.length : 0) +
+    (Array.isArray(account.nativeDevices) ? account.nativeDevices.length : 0);
+  if (!settings.enabled || deliveryTargetCount === 0) {
     return null;
   }
 
@@ -125,12 +132,14 @@ export class CareNotificationService {
     publicOrigin,
     logger = { info() {}, error() {} },
     sender = webPush,
+    nativeSender = null,
     now = () => new Date(),
     intervalMs = 15 * 60 * 1_000,
   }) {
     this.store = store;
     this.logger = logger;
     this.sender = sender;
+    this.nativeSender = nativeSender;
     this.now = now;
     this.intervalMs = intervalMs;
     this.timer = null;
@@ -176,12 +185,23 @@ export class CareNotificationService {
 
   async sendTest(account) {
     const normalized = normalizeAccountNotifications(account);
-    return this.deliver(normalized.pushSubscriptions, {
+    const payload = {
       title: `${normalized.petState.name} can reach you`,
       body: "Care alerts are ready. The reef will let you know when it is time to check in.",
       tag: "kern-care-test",
       url: "/",
-    });
+    };
+    const [web, native] = await Promise.all([
+      this.deliver(normalized.pushSubscriptions, payload),
+      this.nativeSender
+        ? this.nativeSender.deliver(normalized.nativeDevices, payload)
+        : { delivered: 0, expired: [] },
+    ]);
+    return {
+      delivered: web.delivered + native.delivered,
+      expired: web.expired,
+      expiredNativeTokens: native.expired,
+    };
   }
 
   async sweep() {
@@ -199,18 +219,31 @@ export class CareNotificationService {
           return {
             payload: reminder.payload,
             subscriptions: [...account.pushSubscriptions],
+            nativeDevices: [...account.nativeDevices],
           };
         });
         if (!claim?.value) continue;
 
-        const result = await this.deliver(claim.value.subscriptions, claim.value.payload);
+        const [webResult, nativeResult] = await Promise.all([
+          this.deliver(claim.value.subscriptions, claim.value.payload),
+          this.nativeSender
+            ? this.nativeSender.deliver(claim.value.nativeDevices, claim.value.payload)
+            : { delivered: 0, expired: [] },
+        ]);
         await this.store.mutateAccount(candidate.id, now, (account) => {
           normalizeAccountNotifications(account);
           account.pushSubscriptions = account.pushSubscriptions.filter(
-            (subscription) => !result.expired.includes(subscription.endpoint),
+            (subscription) => !webResult.expired.includes(subscription.endpoint),
           );
-          if (result.delivered > 0) account.notificationSettings.lastSentAt = now.toISOString();
-          if (account.pushSubscriptions.length === 0) account.notificationSettings.enabled = false;
+          account.nativeDevices = account.nativeDevices.filter(
+            (device) => !nativeResult.expired.includes(device.token),
+          );
+          if (webResult.delivered + nativeResult.delivered > 0) {
+            account.notificationSettings.lastSentAt = now.toISOString();
+          }
+          if (account.pushSubscriptions.length + account.nativeDevices.length === 0) {
+            account.notificationSettings.enabled = false;
+          }
         });
       }
     })().finally(() => {

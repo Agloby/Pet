@@ -11,8 +11,34 @@ test("development configuration remains local and dependency-light", () => {
   assert.equal(config.production, false);
   assert.equal(config.requireHttps, false);
   assert.equal(config.databaseUrl, null);
+  assert.equal(config.apns, null);
   assert.equal(config.staticRoot, config.appRoot);
   assert.throws(() => loadRuntimeConfig({ PORT: "4173abc" }), /PORT must be an integer/);
+});
+
+test("native notification configuration is optional but atomic", () => {
+  assert.throws(
+    () => loadRuntimeConfig({ KERN_APNS_KEY_ID: "KEY123" }),
+    /are required together/,
+  );
+  assert.throws(
+    () => loadRuntimeConfig({ KERN_APNS_ENVIRONMENT: "preview" }),
+    /must be sandbox or production/,
+  );
+  const config = loadRuntimeConfig({
+    KERN_APNS_KEY_ID: "KEY123",
+    KERN_APNS_TEAM_ID: "TEAM123",
+    KERN_APNS_PRIVATE_KEY: "private-key",
+    KERN_APNS_BUNDLE_ID: "com.agloby.kern",
+    KERN_APNS_ENVIRONMENT: "sandbox",
+  });
+  assert.deepEqual(config.apns, {
+    keyId: "KEY123",
+    teamId: "TEAM123",
+    privateKey: "private-key",
+    bundleId: "com.agloby.kern",
+    environment: "sandbox",
+  });
 });
 
 test("production configuration requires durable storage and a signing secret", () => {

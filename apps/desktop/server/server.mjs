@@ -20,6 +20,7 @@ import {
   normalizeNotificationSettings,
   normalizePushSubscription,
 } from "./notifications.mjs";
+import { normalizeNativeDevice } from "./apns.mjs";
 import {
   advancePetState,
   normalizePetName,
@@ -107,6 +108,8 @@ function publicNotificationState(account, notificationService) {
     publicKey: notificationService?.publicKey || null,
     preferences,
     subscriptionCount: account.pushSubscriptions.length,
+    nativeDeviceCount: account.nativeDevices.length,
+    nativePushAvailable: Boolean(notificationService?.nativeSender),
   };
 }
 
@@ -186,7 +189,7 @@ async function handleApi(request, response, url, context) {
         ok: true,
         service: "kern-sync",
         storage: store.kind,
-        version: 5,
+        version: 6,
       });
     } catch {
       sendJson(response, 503, { ok: false, service: "kern-sync" });
@@ -368,7 +371,70 @@ async function handleApi(request, response, url, context) {
         current.pushSubscriptions = current.pushSubscriptions.filter(
           (subscription) => subscription.endpoint !== body.endpoint,
         );
-        if (current.pushSubscriptions.length === 0) current.notificationSettings.enabled = false;
+        if (current.pushSubscriptions.length + current.nativeDevices.length === 0) {
+          current.notificationSettings.enabled = false;
+        }
+      });
+      sendJson(response, 200, publicNotificationState(mutation.account, context.notificationService));
+      return true;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/notifications/native-devices") {
+      if (!context.notificationService?.nativeSender) {
+        sendJson(response, 503, { error: "Native care notifications are not configured." });
+        return true;
+      }
+      if (
+        !applyRateLimit(
+          response,
+          context.rateLimiters.actions,
+          `${account.id}:${address}`,
+          timestamp,
+        )
+      ) return true;
+      const body = await readJson(request);
+      const device = normalizeNativeDevice({ ...body.device, createdAt: timestamp.toISOString() });
+      if (!device || !validNotificationPreferences(body.preferences || {}, { allowEnabled: false })) {
+        sendJson(response, 400, { error: "The native device or preferences are invalid." });
+        return true;
+      }
+      const mutation = await store.mutateAccount(account.id, timestamp, (current) => {
+        normalizeAccountNotifications(current);
+        current.nativeDevices = [
+          ...current.nativeDevices.filter((item) => item.token !== device.token),
+          device,
+        ].slice(-10);
+        current.notificationSettings = normalizeNotificationSettings({
+          ...current.notificationSettings,
+          ...body.preferences,
+          enabled: true,
+        });
+      });
+      sendJson(response, 201, publicNotificationState(mutation.account, context.notificationService));
+      return true;
+    }
+
+    if (request.method === "DELETE" && url.pathname === "/api/notifications/native-devices") {
+      if (
+        !applyRateLimit(
+          response,
+          context.rateLimiters.actions,
+          `${account.id}:${address}`,
+          timestamp,
+        )
+      ) return true;
+      const body = await readJson(request);
+      const token = typeof body.token === "string" ? body.token.toLowerCase() : "";
+      if (!/^[a-f0-9]{64,200}$/.test(token)) {
+        sendJson(response, 400, { error: "The native device token is invalid." });
+        return true;
+      }
+      const mutation = await store.mutateAccount(account.id, timestamp, (current) => {
+        normalizeAccountNotifications(current);
+        current.nativeDevices = current.nativeDevices.filter((device) => device.token !== token);
+        if (current.pushSubscriptions.length + current.nativeDevices.length === 0) {
+          current.notificationSettings.enabled = false;
+        }
       });
       sendJson(response, 200, publicNotificationState(mutation.account, context.notificationService));
       return true;
@@ -393,12 +459,17 @@ async function handleApi(request, response, url, context) {
         current.pushSubscriptions = current.pushSubscriptions.filter(
           (subscription) => !result.expired.includes(subscription.endpoint),
         );
-        if (current.pushSubscriptions.length === 0) current.notificationSettings.enabled = false;
+        current.nativeDevices = current.nativeDevices.filter(
+          (device) => !(result.expiredNativeTokens || []).includes(device.token),
+        );
+        if (current.pushSubscriptions.length + current.nativeDevices.length === 0) {
+          current.notificationSettings.enabled = false;
+        }
       });
       sendJson(response, result.delivered > 0 ? 200 : 502, {
         ...publicNotificationState(mutation.account, context.notificationService),
         delivered: result.delivered,
-        error: result.delivered > 0 ? undefined : "No active browser could receive the test alert.",
+        error: result.delivered > 0 ? undefined : "No active device could receive the test alert.",
       });
       return true;
     }

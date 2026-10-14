@@ -53,6 +53,11 @@ test("PostgreSQL store creates, retrieves, and atomically mutates accounts", asy
         auth: "B1234567890_auth-token",
       },
     }];
+    current.nativeDevices = [{
+      token: "a".repeat(64),
+      environment: "sandbox",
+      createdAt: now.toISOString(),
+    }];
     return { duplicate: false };
   });
   assert.equal(mutation.value.duplicate, false);
@@ -64,6 +69,7 @@ test("PostgreSQL store creates, retrieves, and atomically mutates accounts", asy
   assert.deepEqual(restored.processedActions, ["postgres-action-1"]);
   assert.equal(restored.notificationSettings.fullnessThreshold, 45);
   assert.equal(restored.pushSubscriptions.length, 1);
+  assert.equal(restored.nativeDevices.length, 1);
   assert.equal((await store.notificationAccounts()).length, 1);
   assert.equal(await store.health(), true);
 });

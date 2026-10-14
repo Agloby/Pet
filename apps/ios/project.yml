@@ -1,0 +1,88 @@
+name: Kern
+options:
+  bundleIdPrefix: com.agloby
+  deploymentTarget:
+    iOS: "17.0"
+  groupSortPosition: top
+configs:
+  Debug: debug
+  Release: release
+configFiles:
+  Debug: Config/Debug.xcconfig
+  Release: Config/Release.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    MARKETING_VERSION: "0.6.0"
+    CURRENT_PROJECT_VERSION: "1"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    TARGETED_DEVICE_FAMILY: "1"
+targets:
+  Kern:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/Shared
+      - path: Sources/KernApp
+      - path: ../desktop/assets/kern-hd.png
+        buildPhase: resources
+      - path: ../desktop/assets/reef-habitat.png
+        buildPhase: resources
+      - path: ../desktop/assets/reef-fish.png
+        buildPhase: resources
+      - path: ../desktop/assets/sea-turtle.png
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(KERN_APP_BUNDLE_ID)
+        PRODUCT_NAME: Kern
+        INFOPLIST_KEY_CFBundleDisplayName: Kern
+        CODE_SIGN_ENTITLEMENTS: Resources/Kern.entitlements
+        GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_KernAPIBaseURL: $(KERN_API_BASE_URL)
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_UIBackgroundModes: remote-notification
+        SUPPORTS_MACCATALYST: false
+    dependencies:
+      - target: KernWidget
+        embed: true
+  KernWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Sources/Shared
+      - path: Sources/KernWidget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(KERN_WIDGET_BUNDLE_ID)
+        PRODUCT_NAME: KernWidget
+        CODE_SIGN_ENTITLEMENTS: Resources/KernWidget.entitlements
+        GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_CFBundleDisplayName: Kern Widget
+        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        SKIP_INSTALL: true
+        SUPPORTS_MACCATALYST: false
+  KernTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: Kern
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.agloby.kern.tests
+        GENERATE_INFOPLIST_FILE: true
+schemes:
+  Kern:
+    build:
+      targets:
+        Kern: all
+        KernWidget: all
+        KernTests: [test]
+    test:
+      targets:
+        - KernTests
+      gatherCoverageData: true
