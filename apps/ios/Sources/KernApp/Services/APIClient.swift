@@ -16,6 +16,10 @@ enum KernAPIError: LocalizedError {
     }
 }
 
+private struct APIErrorBody: Decodable {
+    let error: String
+}
+
 actor APIClient {
     private let baseURL: URL
     private let session: URLSession
@@ -167,8 +171,7 @@ actor APIClient {
         }
         guard let http = response as? HTTPURLResponse else { throw KernAPIError.invalidResponse }
         guard (200..<300).contains(http.statusCode) else {
-            struct ErrorBody: Decodable { let error: String }
-            let message = (try? decoder.decode(ErrorBody.self, from: data).error) ?? "The reef could not complete that request."
+            let message = (try? decoder.decode(APIErrorBody.self, from: data).error) ?? "The reef could not complete that request."
             throw KernAPIError.server(message, http.statusCode)
         }
         do {
