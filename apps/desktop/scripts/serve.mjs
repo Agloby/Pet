@@ -1,5 +1,6 @@
 import { createAccountStore } from "../server/create-store.mjs";
 import { loadRuntimeConfig } from "../server/config.mjs";
+import { CareNotificationService } from "../server/notifications.mjs";
 import { createKernServer } from "../server/server.mjs";
 
 const config = loadRuntimeConfig();
@@ -29,26 +30,38 @@ const store = await createAccountStore({
   dataFile: config.dataFile,
   tokenSecret: config.tokenSecret,
 });
+const notificationService = new CareNotificationService({
+  store,
+  tokenSecret: store.tokenSecret,
+  publicOrigin: config.publicOrigin,
+  logger,
+});
 const server = createKernServer({
   appRoot: config.staticRoot,
   atlasSource: config.atlasSource,
   logger,
+  notificationService,
   publicOrigin: config.publicOrigin,
   requireHttps: config.requireHttps,
   store,
   trustProxy: config.trustProxy,
 });
 
-server.on("error", (error) => {
+server.on("error", async (error) => {
   if (error.code === "EADDRINUSE") {
     logger.error({ message: `Port ${config.port} is already in use. Set PORT to another value.` });
+    notificationService.stop();
+    await store.close();
     process.exitCode = 1;
     return;
   }
+  notificationService.stop();
+  await store.close();
   throw error;
 });
 
 server.listen(config.port, config.host, () => {
+  notificationService.start();
   logger.info({
     event: "server_ready",
     host: config.host,
@@ -69,6 +82,7 @@ async function shutdown(signal) {
   }, 10_000);
   forcedExit.unref();
 
+  notificationService.stop();
   await new Promise((resolve) => server.close(resolve));
   await store.close();
   clearTimeout(forcedExit);

@@ -7,6 +7,8 @@ import {
 import path from "node:path";
 import { randomBytes, randomUUID } from "node:crypto";
 
+import { normalizeAccountNotifications } from "./notifications.mjs";
+
 const STORE_VERSION = 1;
 
 function freshStore(tokenSecret) {
@@ -40,6 +42,9 @@ export class JsonAccountStore {
     try {
       const candidate = JSON.parse(readFileSync(this.filePath, "utf8"));
       if (validStore(candidate)) {
+        for (const account of Object.values(candidate.accounts)) {
+          normalizeAccountNotifications(account);
+        }
         if (this.configuredTokenSecret && candidate.tokenSecret !== this.configuredTokenSecret) {
           candidate.tokenSecret = this.configuredTokenSecret;
           this.write(candidate);
@@ -87,9 +92,12 @@ export class JsonAccountStore {
       petState,
       revision: 1,
       processedActions: [],
+      notificationSettings: null,
+      pushSubscriptions: [],
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
     };
+    normalizeAccountNotifications(account);
     this.data.accounts[usernameKey] = account;
     this.write();
     return account;
@@ -105,6 +113,7 @@ export class JsonAccountStore {
   mutateAccount(accountId, now, mutator) {
     const account = this.accountById(accountId);
     if (!account) return null;
+    normalizeAccountNotifications(account);
     const value = mutator(account);
     this.saveAccount(account, now);
     return { account, value };
@@ -115,4 +124,11 @@ export class JsonAccountStore {
   }
 
   async close() {}
+
+  notificationAccounts() {
+    return Object.values(this.data.accounts).filter((account) => {
+      normalizeAccountNotifications(account);
+      return account.notificationSettings.enabled && account.pushSubscriptions.length > 0;
+    });
+  }
 }

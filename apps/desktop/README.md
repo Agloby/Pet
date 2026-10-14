@@ -8,6 +8,8 @@ Milestone 3 makes the companion personal and gives it a living habitat. The firs
 
 Milestone 4 makes the sync service deployable. Production uses PostgreSQL with transactional action deduplication, a stable environment-provided signing secret, HTTPS enforcement behind a trusted hosting proxy, request rate limits, origin checks, hardened browser headers, health/readiness checks, structured logs, and graceful shutdown. The repository includes a non-root Docker image, a Render Blueprint, CI checks, and a local PostgreSQL Compose stack.
 
+Milestone 5 lets the reef reach back. Signed-in users can enable Web Push care alerts on each browser, choose a fullness threshold and reminder cooldown, and send an immediate test. Subscriptions and preferences are stored with the sync profile, expired endpoints are removed automatically, and the server evaluates authoritative pet decay every 15 minutes. VAPID keys are deterministically derived from the existing stable sync secret, so deployments do not need another manually paired secret.
+
 ## Run locally
 
 From this directory:
@@ -48,6 +50,8 @@ The static client bundle is written to `dist/`, including a copy of the validate
 
 See [`../../docs/milestone-4-deployment.md`](../../docs/milestone-4-deployment.md) for the Render Blueprint, Docker Compose validation, required environment variables, backup guidance, and recovery procedure.
 
+See [`../../docs/milestone-5-notifications.md`](../../docs/milestone-5-notifications.md) for browser support, care-alert behavior, and notification acceptance checks.
+
 ## Figma handoff
 
 Generate the self-contained desktop design with:
@@ -62,4 +66,4 @@ Import `design/kern-reef-companion-desktop.svg` into a blank Figma design file b
 
 The service hashes passwords with scrypt and issues signed 30-day session tokens. Local development writes its data file atomically and binds to `127.0.0.1`. Production refuses to start without PostgreSQL and a signing secret, expects HTTPS at the hosting proxy, and adds rate limits, origin validation, security headers, database readiness checks, and structured logs. The hosting account must enable managed database backups before real user data is stored.
 
-Notifications and native iPhone or Garmin clients remain later milestones.
+Push endpoints are treated as account data and are never included in request logs. Signing out removes this browser's subscription. Alerts require HTTPS outside localhost and a continuously running application process. Native iPhone and Garmin clients remain later milestones.

@@ -32,7 +32,7 @@
       <section class="companion-card" aria-labelledby="greeting">
         <div class="scene-panel">
           <div class="scene-copy">
-            <p class="eyebrow">Milestone 03 · A place to belong</p>
+            <p class="eyebrow">Milestone 05 · Never miss a check-in</p>
             <h1 id="greeting"><button id="pet-name-button" class="pet-name-button" type="button" title="Rename your companion">Kern</button> is <span id="mood-label">settling in</span>.</h1>
             <p id="mood-message" class="mood-message" aria-live="polite">
               Loading the lagoon…
@@ -185,6 +185,44 @@
           <p class="sync-intro">
             Care actions are saved locally first and delivered safely when the sync service is reachable.
           </p>
+          <section class="notification-card" aria-labelledby="notification-title">
+            <div class="notification-heading">
+              <span>
+                <small>Care reminders</small>
+                <strong id="notification-title">Stay connected to the reef</strong>
+              </span>
+              <span id="notification-state" class="notification-state">Off</span>
+            </div>
+            <p id="notification-description" class="notification-description">
+              Get a private browser alert when your companion is getting hungry.
+            </p>
+            <div class="notification-preferences">
+              <label>
+                <span>Remind me below</span>
+                <select id="notification-threshold">
+                  <option value="25">25% fullness</option>
+                  <option value="35" selected>35% fullness</option>
+                  <option value="45">45% fullness</option>
+                  <option value="55">55% fullness</option>
+                </select>
+              </label>
+              <label>
+                <span>At most once every</span>
+                <select id="notification-cooldown">
+                  <option value="4">4 hours</option>
+                  <option value="8">8 hours</option>
+                  <option value="12" selected>12 hours</option>
+                  <option value="24">24 hours</option>
+                  <option value="48">48 hours</option>
+                </select>
+              </label>
+            </div>
+            <p id="notification-message" class="sync-message" aria-live="polite"></p>
+            <div class="sync-actions">
+              <button id="notification-toggle" class="primary-compact" type="button">Enable alerts</button>
+              <button id="notification-test" class="secondary-action" type="button" hidden>Send test</button>
+            </div>
+          </section>
           <p id="account-message" class="sync-message" aria-live="polite"></p>
           <div class="sync-actions">
             <button id="sync-now-button" class="primary-compact" type="button">Sync now</button>
@@ -193,7 +231,7 @@
         </section>
 
         <p class="security-note">
-          This development service stores companion data on this computer. Internet deployment requires HTTPS and managed secrets.
+          Care alerts are private to this sync profile and browser. Signing out disables them on this device.
         </p>
       </div>
     </dialog>

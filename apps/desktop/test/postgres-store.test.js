@@ -39,6 +39,20 @@ test("PostgreSQL store creates, retrieves, and atomically mutates accounts", asy
     current.petState = shareSnack(current.petState, now);
     current.revision += 1;
     current.processedActions = ["postgres-action-1"];
+    current.notificationSettings = {
+      ...current.notificationSettings,
+      enabled: true,
+      fullnessThreshold: 45,
+      cooldownHours: 8,
+    };
+    current.pushSubscriptions = [{
+      endpoint: "https://push.example.test/device-1",
+      expirationTime: null,
+      keys: {
+        p256dh: "A1234567890_abcdefghijklmnopqrstuvwxyz-ABCDE",
+        auth: "B1234567890_auth-token",
+      },
+    }];
     return { duplicate: false };
   });
   assert.equal(mutation.value.duplicate, false);
@@ -48,5 +62,8 @@ test("PostgreSQL store creates, retrieves, and atomically mutates accounts", asy
   const restored = await store.accountByUsername("reefkeeper");
   assert.equal(restored.id, account.id);
   assert.deepEqual(restored.processedActions, ["postgres-action-1"]);
+  assert.equal(restored.notificationSettings.fullnessThreshold, 45);
+  assert.equal(restored.pushSubscriptions.length, 1);
+  assert.equal((await store.notificationAccounts()).length, 1);
   assert.equal(await store.health(), true);
 });

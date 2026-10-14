@@ -57,11 +57,21 @@ const elements = {
   nameMessage: document.querySelector("#name-message"),
   keepNameButton: document.querySelector("#keep-name-button"),
   syncPetName: document.querySelector("#sync-pet-name"),
+  notificationState: document.querySelector("#notification-state"),
+  notificationDescription: document.querySelector("#notification-description"),
+  notificationThreshold: document.querySelector("#notification-threshold"),
+  notificationCooldown: document.querySelector("#notification-cooldown"),
+  notificationMessage: document.querySelector("#notification-message"),
+  notificationToggle: document.querySelector("#notification-toggle"),
+  notificationTest: document.querySelector("#notification-test"),
 };
 
 let state = advancePetState(loadPetState(window.localStorage));
 let syncState = { kind: "local", label: "Local only" };
 let syncInFlight = null;
+let notificationState = null;
+let notificationBusy = false;
+let deviceSubscribed = false;
 const syncClient = new SyncClient({ storage: window.localStorage });
 const characterPlayer = new CharacterPlayer(elements.character);
 
@@ -104,6 +114,159 @@ function renderSync() {
   } else {
     elements.persistenceNote.textContent =
       "Progress stays in this browser until you connect a sync profile.";
+  }
+  renderNotifications();
+}
+
+const notificationSupportAvailable = () =>
+  "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+
+function renderNotifications() {
+  const supported = notificationSupportAvailable();
+  const signedIn = syncClient.isAuthenticated;
+  const enabled = signedIn && supported && deviceSubscribed;
+  elements.notificationState.textContent = enabled ? "On" : "Off";
+  elements.notificationState.dataset.enabled = String(enabled);
+  elements.notificationToggle.textContent = enabled ? "Disable on this device" : "Enable alerts";
+  elements.notificationToggle.disabled =
+    notificationBusy || !signedIn || !supported || Notification.permission === "denied";
+  elements.notificationTest.hidden = !enabled;
+  elements.notificationTest.disabled = notificationBusy;
+  elements.notificationThreshold.disabled = notificationBusy || !enabled;
+  elements.notificationCooldown.disabled = notificationBusy || !enabled;
+
+  if (!supported) {
+    elements.notificationDescription.textContent =
+      "This browser does not support care alerts. On iPhone, install Kern to the Home Screen first.";
+  } else if (Notification.permission === "denied") {
+    elements.notificationDescription.textContent =
+      "Alerts are blocked in this browser. Allow notifications in the site settings to turn them on.";
+  } else if (enabled) {
+    elements.notificationDescription.textContent =
+      `This device will hear from ${state.name} when fullness drops below ${elements.notificationThreshold.value}%.`;
+  } else {
+    elements.notificationDescription.textContent =
+      "Get a private browser alert when your companion is getting hungry.";
+  }
+}
+
+function applicationServerKey(value) {
+  const padding = "=".repeat((4 - (value.length % 4)) % 4);
+  const bytes = atob((value + padding).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(bytes, (character) => character.charCodeAt(0));
+}
+
+async function currentPushSubscription() {
+  if (!notificationSupportAvailable()) return null;
+  const registration = await navigator.serviceWorker.ready;
+  return registration.pushManager.getSubscription();
+}
+
+async function refreshNotifications() {
+  if (!syncClient.isAuthenticated || !notificationSupportAvailable()) {
+    notificationState = null;
+    deviceSubscribed = false;
+    renderNotifications();
+    return;
+  }
+
+  try {
+    const [remote, subscription] = await Promise.all([
+      syncClient.notificationState(),
+      currentPushSubscription(),
+    ]);
+    notificationState = remote;
+    deviceSubscribed = Boolean(subscription && remote.preferences.enabled);
+    elements.notificationThreshold.value = String(remote.preferences.fullnessThreshold);
+    elements.notificationCooldown.value = String(remote.preferences.cooldownHours);
+    setDialogMessage(elements.notificationMessage);
+  } catch (error) {
+    setDialogMessage(elements.notificationMessage, error.message);
+  }
+  renderNotifications();
+}
+
+async function enableNotifications() {
+  notificationBusy = true;
+  renderNotifications();
+  setDialogMessage(elements.notificationMessage, "Preparing care alerts…", "success");
+  try {
+    const remote = notificationState || await syncClient.notificationState();
+    if (!remote.available || !remote.publicKey) throw new Error("Care alerts are unavailable right now.");
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") throw new Error("Allow notifications in this browser to enable alerts.");
+
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription() ||
+      await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: applicationServerKey(remote.publicKey),
+      });
+    notificationState = await syncClient.registerNotificationSubscription(subscription.toJSON(), {
+      fullnessThreshold: Number(elements.notificationThreshold.value),
+      cooldownHours: Number(elements.notificationCooldown.value),
+    });
+    deviceSubscribed = true;
+    setDialogMessage(elements.notificationMessage, "Care alerts are active on this device.", "success");
+  } catch (error) {
+    setDialogMessage(elements.notificationMessage, error.message);
+  } finally {
+    notificationBusy = false;
+    renderNotifications();
+  }
+}
+
+async function disableNotifications({ silent = false } = {}) {
+  notificationBusy = true;
+  renderNotifications();
+  let subscription = null;
+  try {
+    subscription = await currentPushSubscription();
+    if (subscription && syncClient.isAuthenticated) {
+      notificationState = await syncClient.removeNotificationSubscription(subscription.endpoint);
+    }
+    if (!silent) setDialogMessage(elements.notificationMessage, "Care alerts are off on this device.", "success");
+  } catch (error) {
+    if (!silent) setDialogMessage(elements.notificationMessage, error.message);
+  } finally {
+    await subscription?.unsubscribe().catch(() => {});
+    deviceSubscribed = false;
+    notificationBusy = false;
+    renderNotifications();
+  }
+}
+
+async function saveNotificationPreferences() {
+  if (!deviceSubscribed || notificationBusy) return;
+  notificationBusy = true;
+  renderNotifications();
+  try {
+    notificationState = await syncClient.saveNotificationPreferences({
+      enabled: true,
+      fullnessThreshold: Number(elements.notificationThreshold.value),
+      cooldownHours: Number(elements.notificationCooldown.value),
+    });
+    setDialogMessage(elements.notificationMessage, "Reminder timing saved.", "success");
+  } catch (error) {
+    setDialogMessage(elements.notificationMessage, error.message);
+  } finally {
+    notificationBusy = false;
+    renderNotifications();
+  }
+}
+
+async function sendTestNotification() {
+  notificationBusy = true;
+  renderNotifications();
+  setDialogMessage(elements.notificationMessage, "Sending a test alert…", "success");
+  try {
+    await syncClient.sendTestNotification();
+    setDialogMessage(elements.notificationMessage, "Test sent. It may take a few seconds to arrive.", "success");
+  } catch (error) {
+    setDialogMessage(elements.notificationMessage, error.message);
+  } finally {
+    notificationBusy = false;
+    renderNotifications();
   }
 }
 
@@ -296,6 +459,7 @@ async function authenticate(mode) {
     setDialogMessage(elements.accountMessage, `${state.name} is connected to this profile.`, "success");
     renderSync();
     await synchronize();
+    await refreshNotifications();
   } catch (error) {
     setDialogMessage(elements.syncMessage, error.message);
   } finally {
@@ -303,7 +467,8 @@ async function authenticate(mode) {
   }
 }
 
-function handleSignOut() {
+async function handleSignOut() {
+  await disableNotifications({ silent: true });
   syncClient.logout();
   setSyncState("local", "Local only");
   setDialogMessage(elements.syncMessage, "Signed out. Local progress remains on this device.", "success");
@@ -323,6 +488,7 @@ elements.keepNameButton.addEventListener("click", () => handleRename("Kern"));
 elements.syncButton.addEventListener("click", () => {
   renderSync();
   elements.syncDialog.showModal();
+  refreshNotifications();
 });
 elements.syncClose.addEventListener("click", () => elements.syncDialog.close());
 elements.syncForm.addEventListener("submit", (event) => {
@@ -332,6 +498,13 @@ elements.syncForm.addEventListener("submit", (event) => {
 elements.createAccountButton.addEventListener("click", () => authenticate("register"));
 elements.syncNowButton.addEventListener("click", synchronize);
 elements.signOutButton.addEventListener("click", handleSignOut);
+elements.notificationToggle.addEventListener("click", () => {
+  if (deviceSubscribed) disableNotifications();
+  else enableNotifications();
+});
+elements.notificationTest.addEventListener("click", sendTestNotification);
+elements.notificationThreshold.addEventListener("change", saveNotificationPreferences);
+elements.notificationCooldown.addEventListener("change", saveNotificationPreferences);
 
 render();
 renderSync();
@@ -351,6 +524,7 @@ characterPlayer
 if (syncClient.isAuthenticated) {
   synchronize().then(() => {
     if (!state.named) openNameDialog();
+    refreshNotifications();
   });
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "kern-desktop-v6";
+const CACHE_NAME = "kern-desktop-v7";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -59,4 +59,38 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
+});
+
+self.addEventListener("push", (event) => {
+  let message = {};
+  try {
+    message = event.data?.json() || {};
+  } catch {
+    message = {};
+  }
+  event.waitUntil(
+    self.registration.showNotification(message.title || "Kern is checking in", {
+      body: message.body || "Your reef companion would love a visit.",
+      icon: "./assets/kern-icon.svg",
+      badge: "./assets/kern-icon.svg",
+      tag: message.tag || "kern-care-reminder",
+      renotify: false,
+      data: { url: message.url || "./" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const destination = new URL(event.notification.data?.url || "./", self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
+      const matchingClient = clients.find((client) => new URL(client.url).origin === self.location.origin);
+      if (matchingClient) {
+        await matchingClient.navigate(destination);
+        return matchingClient.focus();
+      }
+      return self.clients.openWindow(destination);
+    }),
+  );
 });

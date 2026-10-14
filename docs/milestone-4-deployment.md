@@ -2,6 +2,8 @@
 
 Milestone 4 runs the Kern web client and sync API as one HTTPS service backed by PostgreSQL. Local development continues to use the ignored JSON store, while production refuses to start without durable PostgreSQL storage and a stable signing secret.
 
+Milestone 5 uses the same service and secret for Web Push care alerts; no additional production variable is required. See [`milestone-5-notifications.md`](./milestone-5-notifications.md).
+
 ## Deploy with Render
 
 The repository includes a Render Blueprint in `render.yaml`. In Render, create a new Blueprint from `https://github.com/Agloby/Pet`. The Blueprint provisions:

@@ -2,11 +2,13 @@ import { randomUUID } from "node:crypto";
 
 import pg from "pg";
 
+import { normalizeAccountNotifications } from "./notifications.mjs";
+
 const { Pool } = pg;
 
 function accountFromRow(row) {
   if (!row) return null;
-  return {
+  return normalizeAccountNotifications({
     id: row.id,
     username: row.username,
     usernameKey: row.username_key,
@@ -14,9 +16,11 @@ function accountFromRow(row) {
     petState: row.pet_state,
     revision: row.revision,
     processedActions: row.processed_actions,
+    notificationSettings: row.notification_settings,
+    pushSubscriptions: row.push_subscriptions,
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
-  };
+  });
 }
 
 const accountValues = (account, now) => [
@@ -25,6 +29,8 @@ const accountValues = (account, now) => [
   JSON.stringify(account.petState),
   account.revision,
   JSON.stringify(account.processedActions),
+  JSON.stringify(account.notificationSettings),
+  JSON.stringify(account.pushSubscriptions),
   now,
   account.id,
 ];
@@ -52,10 +58,18 @@ export class PostgresAccountStore {
         pet_state JSONB NOT NULL,
         revision INTEGER NOT NULL DEFAULT 1,
         processed_actions JSONB NOT NULL DEFAULT '[]'::jsonb,
+        notification_settings JSONB NOT NULL DEFAULT '{}'::jsonb,
+        push_subscriptions JSONB NOT NULL DEFAULT '[]'::jsonb,
         created_at TIMESTAMPTZ NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL
       )
     `);
+    await this.pool.query(
+      "ALTER TABLE kern_accounts ADD COLUMN IF NOT EXISTS notification_settings JSONB NOT NULL DEFAULT '{}'::jsonb",
+    );
+    await this.pool.query(
+      "ALTER TABLE kern_accounts ADD COLUMN IF NOT EXISTS push_subscriptions JSONB NOT NULL DEFAULT '[]'::jsonb",
+    );
     await this.pool.query(
       "CREATE INDEX IF NOT EXISTS kern_accounts_updated_at_idx ON kern_accounts (updated_at)",
     );
@@ -102,8 +116,9 @@ export class PostgresAccountStore {
     const result = await this.pool.query(
       `UPDATE kern_accounts
        SET username = $1, password = $2::jsonb, pet_state = $3::jsonb, revision = $4,
-           processed_actions = $5::jsonb, updated_at = $6
-       WHERE id = $7
+           processed_actions = $5::jsonb, notification_settings = $6::jsonb,
+           push_subscriptions = $7::jsonb, updated_at = $8
+       WHERE id = $9
        RETURNING *`,
       accountValues(account, timestamp),
     );
@@ -129,8 +144,9 @@ export class PostgresAccountStore {
       const updated = await client.query(
         `UPDATE kern_accounts
          SET username = $1, password = $2::jsonb, pet_state = $3::jsonb, revision = $4,
-             processed_actions = $5::jsonb, updated_at = $6
-         WHERE id = $7
+             processed_actions = $5::jsonb, notification_settings = $6::jsonb,
+             push_subscriptions = $7::jsonb, updated_at = $8
+         WHERE id = $9
          RETURNING *`,
         accountValues(account, timestamp),
       );
@@ -151,5 +167,13 @@ export class PostgresAccountStore {
 
   async close() {
     await this.pool.end();
+  }
+
+  async notificationAccounts() {
+    const result = await this.pool.query(
+      `SELECT * FROM kern_accounts
+       WHERE notification_settings->>'enabled' = 'true'`,
+    );
+    return result.rows.map(accountFromRow).filter((account) => account.pushSubscriptions.length > 0);
   }
 }

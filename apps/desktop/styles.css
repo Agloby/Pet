@@ -1006,8 +1006,10 @@ h1 span {
 
 .sync-dialog {
   width: min(520px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
   padding: 0;
-  overflow: hidden;
+  overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid rgba(151, 219, 220, 0.2);
   border-radius: 24px;
   background: #082333;
@@ -1185,6 +1187,98 @@ h1 span {
   font-size: 11px;
 }
 
+.notification-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(114, 227, 220, 0.13);
+  border-radius: 15px;
+  background: rgba(2, 17, 27, 0.34);
+}
+
+.notification-heading {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-heading small,
+.notification-heading strong {
+  display: block;
+}
+
+.notification-heading small {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.notification-heading strong {
+  font-size: 14px;
+}
+
+.notification-state {
+  padding: 5px 9px;
+  border: 1px solid rgba(161, 224, 229, 0.14);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.notification-state[data-enabled="true"] {
+  border-color: rgba(114, 227, 220, 0.28);
+  background: rgba(114, 227, 220, 0.09);
+  color: var(--aqua);
+}
+
+.notification-description {
+  margin: 0;
+  color: #8fa8b0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.notification-preferences {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.notification-preferences label {
+  display: grid;
+  gap: 6px;
+  color: #839da5;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.notification-preferences select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(161, 224, 229, 0.14);
+  border-radius: 10px;
+  outline: 0;
+  background: #071d2a;
+  color: #c5d7dc;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.notification-preferences select:focus {
+  border-color: rgba(114, 227, 220, 0.7);
+}
+
 .security-note {
   margin: 26px 0 0;
   padding-top: 18px;
@@ -1252,6 +1346,10 @@ noscript {
 
   .care-panel {
     padding: 36px 24px 28px;
+  }
+
+  .notification-preferences {
+    grid-template-columns: 1fr;
   }
 }
 

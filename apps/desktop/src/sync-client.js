@@ -139,6 +139,42 @@ export class SyncClient {
     return { status: "synced", ...payload };
   }
 
+  async notificationState() {
+    return this.request("/notifications", { authenticated: true });
+  }
+
+  async registerNotificationSubscription(subscription, preferences = {}) {
+    return this.request("/notifications/subscriptions", {
+      method: "POST",
+      authenticated: true,
+      body: { subscription, preferences },
+    });
+  }
+
+  async removeNotificationSubscription(endpoint) {
+    return this.request("/notifications/subscriptions", {
+      method: "DELETE",
+      authenticated: true,
+      body: { endpoint },
+    });
+  }
+
+  async saveNotificationPreferences(preferences) {
+    return this.request("/notifications/preferences", {
+      method: "PUT",
+      authenticated: true,
+      body: preferences,
+    });
+  }
+
+  async sendTestNotification() {
+    return this.request("/notifications/test", {
+      method: "POST",
+      authenticated: true,
+      body: {},
+    });
+  }
+
   async flush() {
     if (!this.session) return { status: "local", pending: 0 };
 
