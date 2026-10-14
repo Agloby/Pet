@@ -25,12 +25,22 @@ jobs:
           DEVICE_ID=$(xcrun simctl list devices available --json | ruby -rjson -e 'devices = JSON.parse(STDIN.read)["devices"].values.flatten; phone = devices.find { |d| d["name"].start_with?("iPhone") && d["isAvailable"] }; abort "No iPhone simulator available" unless phone; print phone["udid"]')
           echo "KERN_SIMULATOR_ID=$DEVICE_ID" >> "$GITHUB_ENV"
       - name: Build and test
-        run: >-
-          xcodebuild test
-          -project Kern.xcodeproj
-          -scheme Kern
-          -destination "id=$KERN_SIMULATOR_ID"
-          CODE_SIGNING_ALLOWED=NO
-          CODE_SIGNING_REQUIRED=NO
-          COMPILER_INDEX_STORE_ENABLE=NO
+        run: |
+          set -o pipefail
+          set +e
+          xcodebuild test \
+            -project Kern.xcodeproj \
+            -scheme Kern \
+            -destination "id=$KERN_SIMULATOR_ID" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO 2>&1 | tee xcodebuild.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ]; then
+            grep -E 'error:|Testing failed:|BUILD FAILED' xcodebuild.log | tail -n 40 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            exit "$status"
+          fi
 
