@@ -21,8 +21,6 @@ targets:
   Kern:
     type: application
     platform: iOS
-    info:
-      path: Resources/Kern-Info.plist
     sources:
       - path: Sources/Shared
       - path: Sources/KernApp
@@ -39,6 +37,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: $(KERN_APP_BUNDLE_ID)
         PRODUCT_NAME: Kern
         CODE_SIGN_ENTITLEMENTS: Resources/Kern.entitlements
+        GENERATE_INFOPLIST_FILE: false
+        INFOPLIST_FILE: Resources/Kern-Info.plist
         SUPPORTS_MACCATALYST: false
     dependencies:
       - target: KernWidget
@@ -46,8 +46,6 @@ targets:
   KernWidget:
     type: app-extension
     platform: iOS
-    info:
-      path: Resources/KernWidget-Info.plist
     sources:
       - path: Sources/Shared
       - path: Sources/KernWidget
@@ -57,6 +55,8 @@ targets:
         PRODUCT_NAME: KernWidget
         CODE_SIGN_ENTITLEMENTS: Resources/KernWidget.entitlements
         APPLICATION_EXTENSION_API_ONLY: true
+        GENERATE_INFOPLIST_FILE: false
+        INFOPLIST_FILE: Resources/KernWidget-Info.plist
         SKIP_INSTALL: true
         SUPPORTS_MACCATALYST: false
   KernTests:
