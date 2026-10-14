@@ -1,0 +1,13 @@
+.git
+.github
+**/.data
+**/dist
+**/node_modules
+**/*.log
+
+Great White Shark/**
+!Great White Shark/work/
+Great White Shark/work/**
+!Great White Shark/work/final/
+Great White Shark/work/final/**
+!Great White Shark/work/final/spritesheet-extended.png

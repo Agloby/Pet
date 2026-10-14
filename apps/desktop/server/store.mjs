@@ -9,10 +9,10 @@ import { randomBytes, randomUUID } from "node:crypto";
 
 const STORE_VERSION = 1;
 
-function freshStore() {
+function freshStore(tokenSecret) {
   return {
     version: STORE_VERSION,
-    tokenSecret: randomBytes(32).toString("base64url"),
+    tokenSecret: tokenSecret || randomBytes(32).toString("base64url"),
     accounts: {},
   };
 }
@@ -29,20 +29,28 @@ function validStore(candidate) {
 }
 
 export class JsonAccountStore {
-  constructor(filePath) {
+  constructor(filePath, { tokenSecret } = {}) {
     this.filePath = filePath;
+    this.configuredTokenSecret = tokenSecret;
     this.data = this.read();
+    this.kind = "json";
   }
 
   read() {
     try {
       const candidate = JSON.parse(readFileSync(this.filePath, "utf8"));
-      if (validStore(candidate)) return candidate;
+      if (validStore(candidate)) {
+        if (this.configuredTokenSecret && candidate.tokenSecret !== this.configuredTokenSecret) {
+          candidate.tokenSecret = this.configuredTokenSecret;
+          this.write(candidate);
+        }
+        return candidate;
+      }
     } catch (error) {
       if (error?.code !== "ENOENT") throw error;
     }
 
-    const data = freshStore();
+    const data = freshStore(this.configuredTokenSecret);
     this.write(data);
     return data;
   }
@@ -93,4 +101,18 @@ export class JsonAccountStore {
     this.write();
     return account;
   }
+
+  mutateAccount(accountId, now, mutator) {
+    const account = this.accountById(accountId);
+    if (!account) return null;
+    const value = mutator(account);
+    this.saveAccount(account, now);
+    return { account, value };
+  }
+
+  async health() {
+    return true;
+  }
+
+  async close() {}
 }

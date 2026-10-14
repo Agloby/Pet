@@ -1,0 +1,33 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: kern
+      POSTGRES_PASSWORD: kern-local-password
+      POSTGRES_USER: kern
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kern -d kern"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - kern-postgres-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://kern:kern-local-password@database:5432/kern
+      KERN_PUBLIC_ORIGIN: http://localhost:4174
+      KERN_REQUIRE_HTTPS: "false"
+      KERN_SYNC_SECRET: local-compose-secret-change-before-production
+      KERN_TRUST_PROXY: "false"
+      NODE_ENV: production
+      PORT: "10000"
+    ports:
+      - "4174:10000"
+
+volumes:
+  kern-postgres-data:
