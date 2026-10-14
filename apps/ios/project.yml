@@ -21,6 +21,8 @@ targets:
   Kern:
     type: application
     platform: iOS
+    info:
+      path: Resources/Kern-Info.plist
     sources:
       - path: Sources/Shared
       - path: Sources/KernApp
@@ -36,14 +38,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(KERN_APP_BUNDLE_ID)
         PRODUCT_NAME: Kern
-        INFOPLIST_KEY_CFBundleDisplayName: Kern
         CODE_SIGN_ENTITLEMENTS: Resources/Kern.entitlements
-        GENERATE_INFOPLIST_FILE: true
-        INFOPLIST_KEY_KernAPIBaseURL: $(KERN_API_BASE_URL)
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
-        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
-        INFOPLIST_KEY_UILaunchScreen_Generation: true
-        INFOPLIST_KEY_UIBackgroundModes: remote-notification
         SUPPORTS_MACCATALYST: false
     dependencies:
       - target: KernWidget
@@ -51,6 +46,8 @@ targets:
   KernWidget:
     type: app-extension
     platform: iOS
+    info:
+      path: Resources/KernWidget-Info.plist
     sources:
       - path: Sources/Shared
       - path: Sources/KernWidget
@@ -59,9 +56,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: $(KERN_WIDGET_BUNDLE_ID)
         PRODUCT_NAME: KernWidget
         CODE_SIGN_ENTITLEMENTS: Resources/KernWidget.entitlements
-        GENERATE_INFOPLIST_FILE: true
-        INFOPLIST_KEY_CFBundleDisplayName: Kern Widget
-        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        APPLICATION_EXTENSION_API_ONLY: true
         SKIP_INSTALL: true
         SUPPORTS_MACCATALYST: false
   KernTests:

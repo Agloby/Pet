@@ -41,9 +41,10 @@ jobs:
             grep -E 'error:|Testing failed:|BUILD FAILED' xcodebuild.log | tail -n 40 | while IFS= read -r line; do
               echo "::error::$line"
             done
-            grep -E -B 8 -A 8 'Simulator device failed|Failed to install|IXUserPresentableErrorDomain|ApplicationVerificationFailed' xcodebuild.log | tail -n 80 | while IFS= read -r line; do
-              echo "::error::$line"
-            done
+            diagnostics=$(grep -E -B 15 -A 15 'Simulator device failed|Failed to install|IXUserPresentableErrorDomain|ApplicationVerificationFailed' xcodebuild.log | tail -n 120 | tr '\n' ' ')
+            if [ -n "$diagnostics" ]; then
+              echo "::error title=Simulator install diagnostics::$diagnostics"
+            fi
             exit "$status"
           fi
 
