@@ -64,6 +64,14 @@ const elements = {
   notificationMessage: document.querySelector("#notification-message"),
   notificationToggle: document.querySelector("#notification-toggle"),
   notificationTest: document.querySelector("#notification-test"),
+  garminState: document.querySelector("#garmin-state"),
+  garminPairingPanel: document.querySelector("#garmin-pairing-panel"),
+  garminPairingCode: document.querySelector("#garmin-pairing-code"),
+  garminPairingExpiry: document.querySelector("#garmin-pairing-expiry"),
+  garminDeviceList: document.querySelector("#garmin-device-list"),
+  garminMessage: document.querySelector("#garmin-message"),
+  garminPair: document.querySelector("#garmin-pair"),
+  garminCopy: document.querySelector("#garmin-copy"),
 };
 
 let state = advancePetState(loadPetState(window.localStorage));
@@ -72,6 +80,10 @@ let syncInFlight = null;
 let notificationState = null;
 let notificationBusy = false;
 let deviceSubscribed = false;
+let garminState = null;
+let garminPairingCode = "";
+let garminBusy = false;
+let garminExpiryTimer = null;
 const syncClient = new SyncClient({ storage: window.localStorage });
 const characterPlayer = new CharacterPlayer(elements.character);
 
@@ -116,6 +128,7 @@ function renderSync() {
       "Progress stays in this browser until you connect a sync profile.";
   }
   renderNotifications();
+  renderGarmin();
 }
 
 const notificationSupportAvailable = () =>
@@ -267,6 +280,112 @@ async function sendTestNotification() {
   } finally {
     notificationBusy = false;
     renderNotifications();
+  }
+}
+
+function renderGarmin() {
+  const devices = garminState?.devices || [];
+  const activeCode = Boolean(
+    garminPairingCode &&
+    garminState?.pairingExpiresAt &&
+    Date.parse(garminState.pairingExpiresAt) > Date.now()
+  );
+  elements.garminState.textContent = devices.length
+    ? `${devices.length} paired`
+    : "No watch";
+  elements.garminState.dataset.enabled = String(devices.length > 0);
+  elements.garminPair.disabled = garminBusy || !syncClient.isAuthenticated;
+  elements.garminCopy.disabled = garminBusy || !activeCode;
+  elements.garminCopy.hidden = !activeCode;
+  elements.garminPairingPanel.hidden = !activeCode;
+  elements.garminPairingCode.textContent = activeCode ? garminPairingCode : "";
+  elements.garminPairingExpiry.textContent = activeCode
+    ? `Expires ${formatTime(garminState.pairingExpiresAt)}. Paste it into the Kern app settings in Garmin Connect.`
+    : "";
+
+  elements.garminDeviceList.replaceChildren();
+  for (const device of devices) {
+    const item = document.createElement("li");
+    const copy = document.createElement("span");
+    const name = document.createElement("strong");
+    const seen = document.createElement("small");
+    const remove = document.createElement("button");
+    name.textContent = device.name;
+    seen.textContent = `Last seen ${formatTime(device.lastSeenAt)}`;
+    copy.append(name, seen);
+    remove.type = "button";
+    remove.className = "text-button";
+    remove.dataset.garminDeviceId = device.id;
+    remove.textContent = "Remove";
+    remove.disabled = garminBusy;
+    item.append(copy, remove);
+    elements.garminDeviceList.append(item);
+  }
+}
+
+async function refreshGarmin() {
+  if (!syncClient.isAuthenticated) {
+    garminState = null;
+    garminPairingCode = "";
+    renderGarmin();
+    return;
+  }
+  try {
+    garminState = await syncClient.garminDevices();
+    garminPairingCode = "";
+    setDialogMessage(elements.garminMessage);
+  } catch (error) {
+    setDialogMessage(elements.garminMessage, error.message);
+  }
+  renderGarmin();
+}
+
+async function createGarminPairingCode() {
+  garminBusy = true;
+  renderGarmin();
+  setDialogMessage(elements.garminMessage, "Creating a one-time code…", "success");
+  try {
+    const result = await syncClient.createGarminPairingCode();
+    garminPairingCode = result.code;
+    garminState = result;
+    window.clearTimeout(garminExpiryTimer);
+    garminExpiryTimer = window.setTimeout(
+      renderGarmin,
+      Math.max(0, Date.parse(result.expiresAt) - Date.now()) + 100,
+    );
+    setDialogMessage(
+      elements.garminMessage,
+      "Code ready. It works once and expires after 10 minutes.",
+      "success",
+    );
+  } catch (error) {
+    setDialogMessage(elements.garminMessage, error.message);
+  } finally {
+    garminBusy = false;
+    renderGarmin();
+  }
+}
+
+async function copyGarminPairingCode() {
+  try {
+    await navigator.clipboard.writeText(garminPairingCode);
+    setDialogMessage(elements.garminMessage, "Pairing code copied.", "success");
+  } catch {
+    setDialogMessage(elements.garminMessage, "Copy was blocked. Select the code and copy it manually.");
+  }
+}
+
+async function removeGarminDevice(deviceId) {
+  garminBusy = true;
+  renderGarmin();
+  try {
+    garminState = await syncClient.removeGarminDevice(deviceId);
+    setDialogMessage(elements.garminMessage, "Garmin access removed.", "success");
+  } catch (error) {
+    setDialogMessage(elements.garminMessage, error.message);
+  } finally {
+    garminBusy = false;
+    renderGarmin();
   }
 }
 
@@ -459,7 +578,7 @@ async function authenticate(mode) {
     setDialogMessage(elements.accountMessage, `${state.name} is connected to this profile.`, "success");
     renderSync();
     await synchronize();
-    await refreshNotifications();
+    await Promise.all([refreshNotifications(), refreshGarmin()]);
   } catch (error) {
     setDialogMessage(elements.syncMessage, error.message);
   } finally {
@@ -470,6 +589,9 @@ async function authenticate(mode) {
 async function handleSignOut() {
   await disableNotifications({ silent: true });
   syncClient.logout();
+  garminState = null;
+  garminPairingCode = "";
+  window.clearTimeout(garminExpiryTimer);
   setSyncState("local", "Local only");
   setDialogMessage(elements.syncMessage, "Signed out. Local progress remains on this device.", "success");
   setDialogMessage(elements.accountMessage);
@@ -489,6 +611,7 @@ elements.syncButton.addEventListener("click", () => {
   renderSync();
   elements.syncDialog.showModal();
   refreshNotifications();
+  refreshGarmin();
 });
 elements.syncClose.addEventListener("click", () => elements.syncDialog.close());
 elements.syncForm.addEventListener("submit", (event) => {
@@ -505,6 +628,12 @@ elements.notificationToggle.addEventListener("click", () => {
 elements.notificationTest.addEventListener("click", sendTestNotification);
 elements.notificationThreshold.addEventListener("change", saveNotificationPreferences);
 elements.notificationCooldown.addEventListener("change", saveNotificationPreferences);
+elements.garminPair.addEventListener("click", createGarminPairingCode);
+elements.garminCopy.addEventListener("click", copyGarminPairingCode);
+elements.garminDeviceList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-garmin-device-id]");
+  if (button) removeGarminDevice(button.dataset.garminDeviceId);
+});
 
 render();
 renderSync();
@@ -525,6 +654,7 @@ if (syncClient.isAuthenticated) {
   synchronize().then(() => {
     if (!state.named) openNameDialog();
     refreshNotifications();
+    refreshGarmin();
   });
 }
 

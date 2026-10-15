@@ -3,12 +3,13 @@ import { randomUUID } from "node:crypto";
 import pg from "pg";
 
 import { normalizeAccountNotifications } from "./notifications.mjs";
+import { normalizeGarminAccount } from "./garmin.mjs";
 
 const { Pool } = pg;
 
 function accountFromRow(row) {
   if (!row) return null;
-  return normalizeAccountNotifications({
+  return normalizeGarminAccount(normalizeAccountNotifications({
     id: row.id,
     username: row.username,
     usernameKey: row.username_key,
@@ -19,9 +20,11 @@ function accountFromRow(row) {
     notificationSettings: row.notification_settings,
     pushSubscriptions: row.push_subscriptions,
     nativeDevices: row.native_devices,
+    garminPairing: row.garmin_pairing,
+    garminDevices: row.garmin_devices,
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
-  });
+  }));
 }
 
 const accountValues = (account, now) => [
@@ -33,6 +36,8 @@ const accountValues = (account, now) => [
   JSON.stringify(account.notificationSettings),
   JSON.stringify(account.pushSubscriptions),
   JSON.stringify(account.nativeDevices),
+  JSON.stringify(account.garminPairing),
+  JSON.stringify(account.garminDevices),
   now,
   account.id,
 ];
@@ -63,6 +68,8 @@ export class PostgresAccountStore {
         notification_settings JSONB NOT NULL DEFAULT '{}'::jsonb,
         push_subscriptions JSONB NOT NULL DEFAULT '[]'::jsonb,
         native_devices JSONB NOT NULL DEFAULT '[]'::jsonb,
+        garmin_pairing JSONB,
+        garmin_devices JSONB NOT NULL DEFAULT '[]'::jsonb,
         created_at TIMESTAMPTZ NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL
       )
@@ -75,6 +82,12 @@ export class PostgresAccountStore {
     );
     await this.pool.query(
       "ALTER TABLE kern_accounts ADD COLUMN IF NOT EXISTS native_devices JSONB NOT NULL DEFAULT '[]'::jsonb",
+    );
+    await this.pool.query(
+      "ALTER TABLE kern_accounts ADD COLUMN IF NOT EXISTS garmin_pairing JSONB",
+    );
+    await this.pool.query(
+      "ALTER TABLE kern_accounts ADD COLUMN IF NOT EXISTS garmin_devices JSONB NOT NULL DEFAULT '[]'::jsonb",
     );
     await this.pool.query(
       "CREATE INDEX IF NOT EXISTS kern_accounts_updated_at_idx ON kern_accounts (updated_at)",
@@ -123,8 +136,9 @@ export class PostgresAccountStore {
       `UPDATE kern_accounts
        SET username = $1, password = $2::jsonb, pet_state = $3::jsonb, revision = $4,
            processed_actions = $5::jsonb, notification_settings = $6::jsonb,
-           push_subscriptions = $7::jsonb, native_devices = $8::jsonb, updated_at = $9
-       WHERE id = $10
+           push_subscriptions = $7::jsonb, native_devices = $8::jsonb,
+           garmin_pairing = $9::jsonb, garmin_devices = $10::jsonb, updated_at = $11
+       WHERE id = $12
        RETURNING *`,
       accountValues(account, timestamp),
     );
@@ -151,8 +165,9 @@ export class PostgresAccountStore {
         `UPDATE kern_accounts
          SET username = $1, password = $2::jsonb, pet_state = $3::jsonb, revision = $4,
              processed_actions = $5::jsonb, notification_settings = $6::jsonb,
-             push_subscriptions = $7::jsonb, native_devices = $8::jsonb, updated_at = $9
-         WHERE id = $10
+             push_subscriptions = $7::jsonb, native_devices = $8::jsonb,
+             garmin_pairing = $9::jsonb, garmin_devices = $10::jsonb, updated_at = $11
+         WHERE id = $12
          RETURNING *`,
         accountValues(account, timestamp),
       );

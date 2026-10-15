@@ -175,6 +175,26 @@ export class SyncClient {
     });
   }
 
+  async garminDevices() {
+    return this.request("/garmin/devices", { authenticated: true });
+  }
+
+  async createGarminPairingCode() {
+    return this.request("/garmin/pairing-codes", {
+      method: "POST",
+      authenticated: true,
+      body: {},
+    });
+  }
+
+  async removeGarminDevice(id) {
+    return this.request("/garmin/devices", {
+      method: "DELETE",
+      authenticated: true,
+      body: { id },
+    });
+  }
+
   async flush() {
     if (!this.session) return { status: "local", pending: 0 };
 

@@ -29,7 +29,7 @@ The API rejects a partial APNs configuration. Device tokens are scoped to sandbo
 
 ## Acceptance check
 
-1. Confirm `/api/health` returns HTTP 200, `"version": 6`, and healthy storage.
+1. Confirm `/api/health` returns HTTP 200, the current API version (`7` after the Garmin milestone), and healthy storage.
 2. Generate the project with `xcodegen generate`; build and run the Kern scheme on an iPhone.
 3. Create or sign into the same Kern profile used on the web app. Confirm name and care state match.
 4. Turn off network access, share a snack, and confirm the UI changes and shows a pending action.

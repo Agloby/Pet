@@ -1,0 +1,7 @@
+<resources>
+  <string id="AppName">Kern</string>
+  <string id="ApiBaseUrlTitle">Kern service URL</string>
+  <string id="ApiBaseUrlPrompt">Your Render URL followed by /api</string>
+  <string id="PairingCodeTitle">One-time pairing code</string>
+  <string id="PairingCodePrompt">Create and copy this code in Kern sync settings</string>
+</resources>

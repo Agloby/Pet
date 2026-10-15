@@ -1279,6 +1279,86 @@ h1 span {
   border-color: rgba(114, 227, 220, 0.7);
 }
 
+.garmin-card {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(114, 227, 220, 0.08), transparent 42%),
+    rgba(2, 17, 27, 0.34);
+}
+
+.garmin-pairing {
+  display: grid;
+  gap: 7px;
+}
+
+.garmin-pairing label {
+  color: #839da5;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.garmin-pairing-code {
+  display: block;
+  max-height: 92px;
+  padding: 11px;
+  overflow: auto;
+  border: 1px solid rgba(114, 227, 220, 0.22);
+  border-radius: 10px;
+  background: #041722;
+  color: #c9fff8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.garmin-pairing small {
+  color: #718b96;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.garmin-device-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.garmin-device-list li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 11px;
+  border: 1px solid rgba(161, 224, 229, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.garmin-device-list strong,
+.garmin-device-list small {
+  display: block;
+}
+
+.garmin-device-list strong {
+  color: #d6e7ea;
+  font-size: 12px;
+}
+
+.garmin-device-list small {
+  margin-top: 3px;
+  color: #718b96;
+  font-size: 9px;
+}
+
+.garmin-device-list .text-button {
+  flex: none;
+}
+
 .security-note {
   margin: 26px 0 0;
   padding-top: 18px;

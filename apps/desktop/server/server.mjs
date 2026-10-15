@@ -22,7 +22,19 @@ import {
 } from "./notifications.mjs";
 import { normalizeNativeDevice } from "./apns.mjs";
 import {
+  garminPairingMatches,
+  garminTokenIdentity,
+  issueGarminDeviceToken,
+  issueGarminPairing,
+  normalizeGarminAccount,
+  publicGarminState,
+  verifyGarminDeviceToken,
+  verifyGarminPairing,
+} from "./garmin.mjs";
+import {
   advancePetState,
+  bondLabel,
+  moodFor,
   normalizePetName,
   normalizePetState,
   renamePet,
@@ -177,6 +189,31 @@ async function authAccount(request, store, now) {
   return account?.username === claims.username ? account : null;
 }
 
+async function authGarminAccount(request, store) {
+  const token = tokenFromRequest(request);
+  const identity = garminTokenIdentity(token);
+  if (!identity) return null;
+  const account = await store.accountById(identity.accountId);
+  const verified = verifyGarminDeviceToken(token, account);
+  return verified ? { account, identity, token } : null;
+}
+
+function publicGarminPet(account) {
+  const petState = account.petState;
+  const mood = moodFor(petState);
+  return {
+    name: petState.name,
+    fullness: Math.round(petState.fullness),
+    happiness: Math.round(petState.happiness),
+    bond: Math.round(petState.bond),
+    bondLabel: bondLabel(petState.bond),
+    careCount: petState.careCount,
+    mood: mood.label,
+    message: mood.message,
+    lastUpdatedAt: petState.lastUpdatedAt,
+  };
+}
+
 async function handleApi(request, response, url, context) {
   const { store, now } = context;
   const timestamp = now();
@@ -189,7 +226,7 @@ async function handleApi(request, response, url, context) {
         ok: true,
         service: "kern-sync",
         storage: store.kind,
-        version: 6,
+        version: 7,
       });
     } catch {
       sendJson(response, 503, { ok: false, service: "kern-sync" });
@@ -266,6 +303,125 @@ async function handleApi(request, response, url, context) {
     return true;
   }
 
+  if (request.method === "POST" && url.pathname === "/api/garmin/pair") {
+    const pairingLimiter = context.rateLimiters.pairing || context.rateLimiters.login;
+    if (!applyRateLimit(response, pairingLimiter, address, timestamp)) return true;
+    const body = await readJson(request);
+    const claims = verifyGarminPairing(body.code, store.tokenSecret, timestamp);
+    const clientId = typeof body.clientId === "string" ? body.clientId.trim() : "";
+    const name = typeof body.name === "string"
+      ? body.name.replace(/\s+/gu, " ").trim().slice(0, 40)
+      : "Garmin watch";
+    if (!claims || !/^[a-zA-Z0-9._-]{8,80}$/.test(clientId)) {
+      sendJson(response, 400, { error: "The Garmin pairing code or device ID is invalid." });
+      return true;
+    }
+
+    const issued = issueGarminDeviceToken(claims.sub);
+    const mutation = await store.mutateAccount(claims.sub, timestamp, (current) => {
+      normalizeGarminAccount(current);
+      if (!garminPairingMatches(current, claims, timestamp)) return { paired: false };
+      current.garminPairing = null;
+      current.garminDevices = [
+        ...current.garminDevices.filter((device) => device.clientId !== clientId),
+        {
+          id: issued.deviceRecordId,
+          clientId,
+          name: name || "Garmin watch",
+          tokenHash: issued.tokenHash,
+          createdAt: timestamp.toISOString(),
+          lastSeenAt: timestamp.toISOString(),
+        },
+      ].slice(-5);
+      return { paired: true };
+    });
+    if (!mutation?.value.paired) {
+      sendJson(response, 401, { error: "This Garmin pairing code has expired or was already used." });
+      return true;
+    }
+    sendJson(response, 201, {
+      token: issued.token,
+      petState: publicGarminPet(mutation.account),
+      revision: mutation.account.revision,
+    });
+    return true;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/garmin/pet") {
+    const authentication = await authGarminAccount(request, store);
+    if (!authentication) {
+      sendJson(response, 401, { error: "Pair this Garmin with Kern again." });
+      return true;
+    }
+    const mutation = await store.mutateAccount(authentication.account.id, timestamp, (current) => {
+      const verified = verifyGarminDeviceToken(authentication.token, current);
+      if (!verified) return { authorized: false };
+      current.petState = advancePetState(current.petState, timestamp);
+      verified.device.lastSeenAt = timestamp.toISOString();
+      return { authorized: true };
+    });
+    if (!mutation?.value.authorized) {
+      sendJson(response, 401, { error: "Pair this Garmin with Kern again." });
+      return true;
+    }
+    sendJson(response, 200, {
+      petState: publicGarminPet(mutation.account),
+      revision: mutation.account.revision,
+    });
+    return true;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/garmin/actions") {
+    const authentication = await authGarminAccount(request, store);
+    if (!authentication) {
+      sendJson(response, 401, { error: "Pair this Garmin with Kern again." });
+      return true;
+    }
+    if (
+      !applyRateLimit(
+        response,
+        context.rateLimiters.actions,
+        `garmin:${authentication.identity.deviceRecordId}:${address}`,
+        timestamp,
+      )
+    ) return true;
+    const body = await readJson(request);
+    if (
+      typeof body.actionId !== "string" ||
+      body.actionId.length < 8 ||
+      body.actionId.length > 100 ||
+      (body.type !== undefined && body.type !== "share_snack")
+    ) {
+      sendJson(response, 400, { error: "The Garmin care action is invalid." });
+      return true;
+    }
+    const mutation = await store.mutateAccount(authentication.account.id, timestamp, (current) => {
+      const verified = verifyGarminDeviceToken(authentication.token, current);
+      if (!verified) return { authorized: false, duplicate: false };
+      const duplicate = current.processedActions.includes(body.actionId);
+      if (!duplicate) {
+        current.petState = shareSnack(current.petState, timestamp);
+        current.revision += 1;
+        current.processedActions = [body.actionId, ...current.processedActions].slice(
+          0,
+          MAX_PROCESSED_ACTIONS,
+        );
+      }
+      verified.device.lastSeenAt = timestamp.toISOString();
+      return { authorized: true, duplicate };
+    });
+    if (!mutation?.value.authorized) {
+      sendJson(response, 401, { error: "Pair this Garmin with Kern again." });
+      return true;
+    }
+    sendJson(response, 200, {
+      petState: publicGarminPet(mutation.account),
+      revision: mutation.account.revision,
+      duplicate: mutation.value.duplicate,
+    });
+    return true;
+  }
+
   if (url.pathname.startsWith("/api/")) {
     const account = await authAccount(request, store, timestamp);
     if (!account) {
@@ -283,6 +439,54 @@ async function handleApi(request, response, url, context) {
         petState: savedAccount.petState,
         revision: savedAccount.revision,
       });
+      return true;
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/garmin/devices") {
+      sendJson(response, 200, publicGarminState(account));
+      return true;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/garmin/pairing-codes") {
+      if (
+        !applyRateLimit(
+          response,
+          context.rateLimiters.actions,
+          `${account.id}:${address}`,
+          timestamp,
+        )
+      ) return true;
+      const issued = issueGarminPairing(account, store.tokenSecret, timestamp);
+      const mutation = await store.mutateAccount(account.id, timestamp, (current) => {
+        current.garminPairing = issued.pairing;
+      });
+      sendJson(response, 201, {
+        code: issued.code,
+        expiresAt: issued.expiresAt,
+        ...publicGarminState(mutation.account),
+      });
+      return true;
+    }
+
+    if (request.method === "DELETE" && url.pathname === "/api/garmin/devices") {
+      if (
+        !applyRateLimit(
+          response,
+          context.rateLimiters.actions,
+          `${account.id}:${address}`,
+          timestamp,
+        )
+      ) return true;
+      const body = await readJson(request);
+      if (typeof body.id !== "string" || !/^[a-zA-Z0-9._-]{8,80}$/.test(body.id)) {
+        sendJson(response, 400, { error: "The Garmin device ID is invalid." });
+        return true;
+      }
+      const mutation = await store.mutateAccount(account.id, timestamp, (current) => {
+        normalizeGarminAccount(current);
+        current.garminDevices = current.garminDevices.filter((device) => device.id !== body.id);
+      });
+      sendJson(response, 200, publicGarminState(mutation.account));
       return true;
     }
 
@@ -583,6 +787,7 @@ export function createKernServer({
   rateLimiters = {
     register: new FixedWindowRateLimiter({ limit: 5, windowMs: 60 * 60 * 1_000 }),
     login: new FixedWindowRateLimiter({ limit: 10, windowMs: 15 * 60 * 1_000 }),
+    pairing: new FixedWindowRateLimiter({ limit: 12, windowMs: 15 * 60 * 1_000 }),
     actions: new FixedWindowRateLimiter({ limit: 120, windowMs: 60 * 1_000 }),
   },
 }) {

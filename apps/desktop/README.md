@@ -12,6 +12,8 @@ Milestone 5 lets the reef reach back. Signed-in users can enable Web Push care a
 
 Milestone 6 adds the native iPhone client in `../ios`. This service now stores environment-scoped APNs device tokens alongside browser subscriptions and can deliver the same test and scheduled care reminders through Apple Push Notification service when optional Apple credentials are configured.
 
+Milestone 7 adds the Garmin Connect IQ client in `../garmin`. A signed-in browser issues a single-use, ten-minute pairing code; the watch exchanges it for a revocable watch-only token and can read compact pet state or submit a deduplicated snack action. The desktop sync panel lists and revokes paired watches.
+
 ## Run locally
 
 From this directory:
@@ -56,6 +58,8 @@ See [`../../docs/milestone-5-notifications.md`](../../docs/milestone-5-notificat
 
 See [`../../docs/milestone-6-ios.md`](../../docs/milestone-6-ios.md) for the iPhone project, signing, APNs configuration, and native acceptance checks.
 
+See [`../../docs/milestone-7-garmin.md`](../../docs/milestone-7-garmin.md) for Garmin pairing, Connect IQ setup, security boundaries, and watch acceptance checks.
+
 ## Figma handoff
 
 Generate the self-contained desktop design with:
@@ -70,4 +74,4 @@ Import `design/kern-reef-companion-desktop.svg` into a blank Figma design file b
 
 The service hashes passwords with scrypt and issues signed 30-day session tokens. Local development writes its data file atomically and binds to `127.0.0.1`. Production refuses to start without PostgreSQL and a signing secret, expects HTTPS at the hosting proxy, and adds rate limits, origin validation, security headers, database readiness checks, and structured logs. The hosting account must enable managed database backups before real user data is stored.
 
-Push endpoints and native device tokens are treated as account data and are never included in request logs. Signing out removes the current client’s subscription. Alerts require HTTPS outside localhost and a continuously running application process. Apple signing and APNs credentials remain operator-managed secrets; Garmin remains a later milestone.
+Push endpoints, native device tokens, and Garmin watch-token hashes are treated as account data and are never included in request logs. Signing out removes the current browser’s notification subscription; paired watches remain explicitly revocable from sync settings. Alerts require HTTPS outside localhost and a continuously running application process. Apple signing and APNs credentials remain operator-managed secrets. Garmin watch tokens are returned once, stored only on the watch, and immediately invalidated when that watch is removed.

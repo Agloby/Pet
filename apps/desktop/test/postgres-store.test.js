@@ -58,6 +58,18 @@ test("PostgreSQL store creates, retrieves, and atomically mutates accounts", asy
       environment: "sandbox",
       createdAt: now.toISOString(),
     }];
+    current.garminPairing = {
+      nonceHash: "b".repeat(43),
+      expiresAt: new Date(now.getTime() + 600_000).toISOString(),
+    };
+    current.garminDevices = [{
+      id: "garmin-device-0001",
+      clientId: "fenix7-client-01",
+      name: "Fenix 7",
+      tokenHash: "a".repeat(43),
+      createdAt: now.toISOString(),
+      lastSeenAt: now.toISOString(),
+    }];
     return { duplicate: false };
   });
   assert.equal(mutation.value.duplicate, false);
@@ -70,6 +82,8 @@ test("PostgreSQL store creates, retrieves, and atomically mutates accounts", asy
   assert.equal(restored.notificationSettings.fullnessThreshold, 45);
   assert.equal(restored.pushSubscriptions.length, 1);
   assert.equal(restored.nativeDevices.length, 1);
+  assert.equal(restored.garminPairing.nonceHash, "b".repeat(43));
+  assert.equal(restored.garminDevices[0].name, "Fenix 7");
   assert.equal((await store.notificationAccounts()).length, 1);
   assert.equal(await store.health(), true);
 });

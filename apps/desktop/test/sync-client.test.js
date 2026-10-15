@@ -137,3 +137,29 @@ test("registration adopts the returned sync session and state", async () => {
   assert.equal(client.session.accountId, "account-2");
   assert.equal(loadSyncSession(storage).token, "new-token");
 });
+
+test("Garmin management requests use the authenticated companion routes", async () => {
+  const storage = memoryStorage();
+  saveSyncSession(storage, session);
+  const requests = [];
+  const client = new SyncClient({
+    storage,
+    fetchFn: async (url, options) => {
+      requests.push({ url, options });
+      return jsonResponse({ devices: [] });
+    },
+  });
+
+  await client.garminDevices();
+  await client.createGarminPairingCode();
+  await client.removeGarminDevice("garmin-device-0001");
+
+  assert.deepEqual(requests.map(({ url }) => url), [
+    "./api/garmin/devices",
+    "./api/garmin/pairing-codes",
+    "./api/garmin/devices",
+  ]);
+  assert.deepEqual(requests.map(({ options }) => options.method), ["GET", "POST", "DELETE"]);
+  assert.equal(requests.every(({ options }) => options.headers.Authorization === "Bearer signed-token"), true);
+  assert.equal(requests[2].options.body, JSON.stringify({ id: "garmin-device-0001" }));
+});

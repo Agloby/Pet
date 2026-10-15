@@ -1,0 +1,10 @@
+<resources>
+  <settings>
+    <setting propertyKey="@Properties.apiBaseUrl" title="@Strings.ApiBaseUrlTitle">
+      <settingConfig type="alphaNumeric" required="true" prompt="@Strings.ApiBaseUrlPrompt" />
+    </setting>
+    <setting propertyKey="@Properties.pairingCode" title="@Strings.PairingCodeTitle">
+      <settingConfig type="alphaNumeric" required="false" prompt="@Strings.PairingCodePrompt" />
+    </setting>
+  </settings>
+</resources>

@@ -8,6 +8,7 @@ import path from "node:path";
 import { randomBytes, randomUUID } from "node:crypto";
 
 import { normalizeAccountNotifications } from "./notifications.mjs";
+import { normalizeGarminAccount } from "./garmin.mjs";
 
 const STORE_VERSION = 1;
 
@@ -44,6 +45,7 @@ export class JsonAccountStore {
       if (validStore(candidate)) {
         for (const account of Object.values(candidate.accounts)) {
           normalizeAccountNotifications(account);
+          normalizeGarminAccount(account);
         }
         if (this.configuredTokenSecret && candidate.tokenSecret !== this.configuredTokenSecret) {
           candidate.tokenSecret = this.configuredTokenSecret;
@@ -95,10 +97,13 @@ export class JsonAccountStore {
       notificationSettings: null,
       pushSubscriptions: [],
       nativeDevices: [],
+      garminPairing: null,
+      garminDevices: [],
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
     };
     normalizeAccountNotifications(account);
+    normalizeGarminAccount(account);
     this.data.accounts[usernameKey] = account;
     this.write();
     return account;
@@ -115,6 +120,7 @@ export class JsonAccountStore {
     const account = this.accountById(accountId);
     if (!account) return null;
     normalizeAccountNotifications(account);
+    normalizeGarminAccount(account);
     const value = mutator(account);
     this.saveAccount(account, now);
     return { account, value };

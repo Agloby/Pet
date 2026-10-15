@@ -2,7 +2,7 @@
 
 Milestone 4 runs the Kern web client and sync API as one HTTPS service backed by PostgreSQL. Local development continues to use the ignored JSON store, while production refuses to start without durable PostgreSQL storage and a stable signing secret.
 
-Milestone 5 uses the same service and secret for Web Push care alerts; no additional production variable is required. Milestone 6 optionally adds Apple Push Notification service credentials for the native iPhone app. See [`milestone-5-notifications.md`](./milestone-5-notifications.md) and [`milestone-6-ios.md`](./milestone-6-ios.md).
+Milestone 5 uses the same service and secret for Web Push care alerts; no additional production variable is required. Milestone 6 optionally adds Apple Push Notification service credentials for the native iPhone app. Milestone 7 uses the existing sync secret for expiring Garmin pairing codes and needs no additional production variable. See [`milestone-5-notifications.md`](./milestone-5-notifications.md), [`milestone-6-ios.md`](./milestone-6-ios.md), and [`milestone-7-garmin.md`](./milestone-7-garmin.md).
 
 ## Deploy with Render
 

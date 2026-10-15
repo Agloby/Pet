@@ -36,4 +36,4 @@ The scheduler runs inside the Kern application process. The hosting plan must ke
 4. Sign in from a second browser, enable alerts there, and confirm both devices are registered.
 5. Disable alerts on one browser and confirm the other remains registered.
 6. Sign out and confirm the current browser no longer receives tests.
-7. Confirm `/api/health` reports the current API version (`6` after the native iPhone milestone), healthy PostgreSQL storage, and HTTP 200.
+7. Confirm `/api/health` reports the current API version (`7` after the Garmin milestone), healthy PostgreSQL storage, and HTTP 200.

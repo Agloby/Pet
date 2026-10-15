@@ -32,7 +32,7 @@
       <section class="companion-card" aria-labelledby="greeting">
         <div class="scene-panel">
           <div class="scene-copy">
-            <p class="eyebrow">Milestone 05 · Never miss a check-in</p>
+            <p class="eyebrow">Milestone 07 · Kern on your wrist</p>
             <h1 id="greeting"><button id="pet-name-button" class="pet-name-button" type="button" title="Rename your companion">Kern</button> is <span id="mood-label">settling in</span>.</h1>
             <p id="mood-message" class="mood-message" aria-live="polite">
               Loading the lagoon…
@@ -223,6 +223,29 @@
               <button id="notification-test" class="secondary-action" type="button" hidden>Send test</button>
             </div>
           </section>
+          <section class="notification-card garmin-card" aria-labelledby="garmin-title">
+            <div class="notification-heading">
+              <span>
+                <small>Garmin Connect IQ</small>
+                <strong id="garmin-title">Take Kern to your wrist</strong>
+              </span>
+              <span id="garmin-state" class="notification-state">No watch</span>
+            </div>
+            <p class="notification-description">
+              Pair a Garmin watch to check the reef and share a snack without entering your Kern password.
+            </p>
+            <div id="garmin-pairing-panel" class="garmin-pairing" hidden>
+              <label for="garmin-pairing-code">One-time pairing code</label>
+              <output id="garmin-pairing-code" class="garmin-pairing-code"></output>
+              <small id="garmin-pairing-expiry"></small>
+            </div>
+            <ul id="garmin-device-list" class="garmin-device-list" aria-label="Paired Garmin watches"></ul>
+            <p id="garmin-message" class="sync-message" aria-live="polite"></p>
+            <div class="sync-actions">
+              <button id="garmin-pair" class="primary-compact" type="button">Create pairing code</button>
+              <button id="garmin-copy" class="secondary-action" type="button" hidden>Copy code</button>
+            </div>
+          </section>
           <p id="account-message" class="sync-message" aria-live="polite"></p>
           <div class="sync-actions">
             <button id="sync-now-button" class="primary-compact" type="button">Sync now</button>
@@ -231,7 +254,7 @@
         </section>
 
         <p class="security-note">
-          Care alerts are private to this sync profile and browser. Signing out disables them on this device.
+          Care alerts and paired watches are private to this sync profile. Garmin receives a revocable watch-only token, never your password.
         </p>
       </div>
     </dialog>
